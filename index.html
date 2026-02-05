@@ -126,11 +126,11 @@
         <h1 style="color:#ff6900; text-shadow: 2px 2px #fff;">ZALLY'S PROMPT DELIVERY</h1>
         <p style="font-size: 12px; color: #aaa;">OPERATIONS EDITION</p>
         <p style="font-size: 10px; margin-top:20px; text-align: left; padding: 0 40px;">
-            MISSIONE: Consegna il prompt ingegnerizzato alla casa giusta!<br><br>
-            ⬆️ ⬇️ : Muovi lo scooter<br>
+            MISSIONE: Zally corre verso il futuro! Consegna i prompt corretti alle case Ops.<br><br>
+            ⬆️ ⬇️ : Muovi Zally tra le corsie<br>
             SPACE : Lancia il Prompt<br>
         </p>
-        <button class="btn" onclick="startGame()">START ROUTE</button>
+        <button class="btn" onclick="startGame()">INIZIA IL TURNO</button>
     </div>
 
     <div id="edu-modal" class="modal">
@@ -138,12 +138,12 @@
         <span id="edu-tech" class="tech-badge">TECNICA: FEW-SHOT</span>
         <p id="edu-desc" style="font-size: 10px; margin-top: 15px;">Spiegazione del concetto...</p>
         <div id="edu-code" class="code-box">Esempio di prompt...</div>
-        <button class="btn" onclick="nextLevel()">NEXT LEVEL >></button>
+        <button class="btn" onclick="nextLevel()">PROSSIMO LIVELLO >></button>
     </div>
 
     <div id="game-over-modal" class="modal">
         <h1 style="color:red">GAME OVER</h1>
-        <p>Hai mancato troppe consegne o colpito ostacoli!</p>
+        <p>Turno finito. Riprova!</p>
         <button class="btn" onclick="location.reload()">RITENTA</button>
     </div>
 </div>
@@ -151,7 +151,7 @@
 <script>
 /**
  * ZALLY'S PROMPT DELIVERY
- * Engine ver 1.1 (Image Support)
+ * Engine ver 1.2 (Fixed Sprite Orientation)
  */
 
 const canvas = document.getElementById('gameCanvas');
@@ -160,8 +160,7 @@ const scoreEl = document.getElementById('score');
 const levelEl = document.getElementById('level-display');
 
 // --- ASSETS CONFIG ---
-// Metti qui il nome della tua immagine. 
-// Deve essere quadrata o rettangolare (es. 100x100px o 120x100px)
+// Assicurati che il file zally-paperboy.png sia nella stessa cartella
 const PLAYER_IMG_SRC = 'zally-paperboy.png'; 
 
 const zallySprite = new Image();
@@ -213,25 +212,38 @@ const levels = [
 // --- ENTITIES ---
 
 const player = {
-    x: 50,
+    x: 50, // Posizione fissa a sinistra
     y: 300,
-    width: 80,  // Dimensione sprite
-    height: 80, // Dimensione sprite
+    width: 80,  
+    height: 80, 
     lane: 1, 
-    lanesY: [150, 300, 450], // Coordinate Y delle 3 corsie
+    lanesY: [150, 300, 450], 
     
     draw() {
         if (isImageLoaded) {
-            // Disegna l'immagine se caricata
-            ctx.drawImage(zallySprite, this.x, this.y - 20, this.width, this.height);
+            // --- INIZIO LOGICA DI RIBALTAMENTO SPRITE ---
+            ctx.save(); // Salva lo stato attuale del canvas
+            
+            // Sposta il punto di origine al centro dello sprite
+            ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
+            
+            // Ribalta orizzontalmente (scala X di -1)
+            ctx.scale(-1, 1);
+            
+            // Disegna l'immagine (ora centrata sull'origine 0,0 a causa del translate)
+            ctx.drawImage(zallySprite, -this.width / 2, -this.height / 2, this.width, this.height);
+            
+            ctx.restore(); // Ripristina lo stato per non influenzare altri disegni
+            // --- FINE LOGICA DI RIBALTAMENTO ---
+            
         } else {
-            // FALLBACK: Se non c'è l'immagine, disegna un rettangolo Ops Orange
+            // FALLBACK: Rettangolo arancione se l'immagine non c'è
             ctx.fillStyle = '#ff6900';
             ctx.fillRect(this.x, this.y, 60, 60);
-            // Ruote stilizzate
+             // Ruote per dare senso di direzione
             ctx.fillStyle = '#000';
-            ctx.beginPath(); ctx.arc(this.x + 10, this.y + 60, 10, 0, Math.PI*2); ctx.fill();
-            ctx.beginPath(); ctx.arc(this.x + 50, this.y + 60, 10, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(this.x + 50, this.y + 60, 10, 0, Math.PI*2); ctx.fill(); // Ruota davanti
+            ctx.beginPath(); ctx.arc(this.x + 10, this.y + 60, 10, 0, Math.PI*2); ctx.fill(); // Ruota dietro
         }
     },
 
@@ -248,18 +260,16 @@ let projectiles = [];
 class Target {
     constructor() {
         this.lane = Math.floor(Math.random() * 3);
-        this.x = canvas.width;
+        this.x = canvas.width; // Spawna a destra
         this.y = player.lanesY[this.lane];
         this.width = 80;
         this.height = 80;
         this.active = true;
-        this.type = 'HOUSE'; 
-        // Colore basato sul livello corrente
         this.color = levels[currentLevel].targetColor;
     }
 
     update() {
-        this.x -= speed;
+        this.x -= speed; // Si muove verso sinistra (crea illusione di movimento a destra)
     }
 
     draw() {
@@ -290,7 +300,7 @@ class Projectile {
     constructor() {
         this.x = player.x + 40;
         this.y = player.y + 20;
-        this.speedX = 12;
+        this.speedX = 12; // Viaggia verso destra
         this.active = true;
     }
 
@@ -330,7 +340,7 @@ function resetLevel() {
     projectiles = [];
     player.x = 50;
     deliveriesMade = 0;
-    levelEl.innerText = `LVL ${currentLevel + 1}: ${levels[currentLevel].tech}`;
+    levelEl.innerText = `LVL ${currentLevel + 1}: ${levels[currentLevel].tech} (${deliveriesMade}/${DELIVERIES_NEEDED})`;
     scoreEl.innerText = `SCORE: ${score}`;
     speed = 4 + (currentLevel * 1.5); // Aumenta velocità ogni livello
 }
@@ -348,17 +358,17 @@ function checkCollisions() {
     projectiles.forEach(p => {
         targets.forEach(t => {
             if (p.active && t.active) {
-                // Logica hitbox semplificata
+                // Logica hitbox
                 if (p.x > t.x - 30 && p.x < t.x + 80 && 
-                    // Deve essere nella stessa "lane" visiva (approssimata sulla Y)
                     Math.abs(p.y - t.y) < 60) {
                     
                     p.active = false;
-                    t.active = false; // Casa "servita" (scompare o cambia colore)
+                    t.active = false; 
                     
                     score += 100;
                     deliveriesMade++;
                     scoreEl.innerText = `SCORE: ${score}`;
+                    levelEl.innerText = `LVL ${currentLevel + 1}: ${levels[currentLevel].tech} (${deliveriesMade}/${DELIVERIES_NEEDED})`;
 
                     // Se abbiamo fatto abbastanza consegne, fine livello
                     if (deliveriesMade >= DELIVERIES_NEEDED) {
@@ -379,7 +389,7 @@ function triggerLevelComplete() {
     
     const modal = document.getElementById('edu-modal');
     document.getElementById('edu-title').innerText = "LIVELLO COMPLETATO!";
-    document.getElementById('edu-tech').innerText = `TECNICA: ${levels[currentLevel].tech}`;
+    document.getElementById('edu-tech').innerText = `TECNICA SBLOCCATA: ${levels[currentLevel].tech}`;
     document.getElementById('edu-desc').innerText = levels[currentLevel].desc;
     document.getElementById('edu-code').innerText = levels[currentLevel].example;
     
@@ -408,14 +418,20 @@ function loop() {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Sfondo: Strada e Marciapiede
+    // Sfondo: Strada e Marciapiede (Scorrimento simulato)
     ctx.fillStyle = '#7f8c8d'; // Strada grigia
     ctx.fillRect(0, 100, canvas.width, 500);
     
     // Corsie tratteggiate
     ctx.strokeStyle = '#fff';
     ctx.lineWidth = 4;
+    
+    // Calcola offset per effetto scorrimento
+    let lineOffset = (frameCount * speed) % 80; 
+
     ctx.setLineDash([40, 40]);
+    ctx.lineDashOffset = -lineOffset; // Muove le linee verso sinistra
+
     ctx.beginPath();
     ctx.moveTo(0, 225); ctx.lineTo(800, 225);
     ctx.moveTo(0, 375); ctx.lineTo(800, 375);
@@ -436,7 +452,7 @@ function loop() {
         p.draw();
     });
 
-    // Disegna Zally
+    // Disegna Zally (che ora sarà girata verso dx)
     player.draw();
 
     checkCollisions();
