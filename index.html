@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Zally's Prompt Delivery: Ops Edition</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        body {
+            background-color: #1a1a1a;
+            color: #fff;
+            font-family: 'Press Start 2P', cursive;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #game-container {
+            position: relative;
+            width: 800px;
+            height: 600px;
+            background: #333;
+            border: 4px solid #ff6900; /* Zalando Orange */
+            box-shadow: 0 0 20px rgba(255, 105, 0, 0.5);
+            overflow: hidden;
+        }
+
+        /* Effetto CRT Retro */
+        #game-container::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 10;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        canvas {
+            background-color: #87CEEB; /* Sky blue background */
+            display: block;
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 5;
+            width: 780px;
+            display: flex;
+            justify-content: space-between;
+            text-shadow: 2px 2px #000;
+            pointer-events: none;
+        }
+
+        .modal {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70%;
+            background: #000;
+            border: 2px solid #fff;
+            padding: 20px;
+            z-index: 20;
+            text-align: center;
+            line-height: 1.5;
+            box-shadow: 10px 10px 0px #ff6900;
+        }
+
+        .btn {
+            background: #ff6900;
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            font-family: 'Press Start 2P', cursive;
+            cursor: pointer;
+            margin-top: 20px;
+            text-transform: uppercase;
+        }
+        
+        .btn:hover { background: #ff8c00; transform: scale(1.05); }
+
+        .highlight { color: #ff6900; margin-bottom: 10px; display:block;}
+        
+        .code-box { 
+            background: #222; 
+            color: #0f0; 
+            padding: 15px; 
+            font-size: 10px; 
+            text-align: left; 
+            margin: 15px 0;
+            border-left: 4px solid #ff6900;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        
+        .tech-badge {
+            background: #fff;
+            color: #000;
+            padding: 2px 5px;
+            font-size: 10px;
+        }
+
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    
+    <div id="ui-layer">
+        <div id="score">SCORE: 0</div>
+        <div id="level-display">LVL 1: FEW-SHOT</div>
+    </div>
+
+    <div id="start-screen" class="modal" style="display: block;">
+        <h1 style="color:#ff6900; text-shadow: 2px 2px #fff;">ZALLY'S PROMPT DELIVERY</h1>
+        <p style="font-size: 12px; color: #aaa;">OPERATIONS EDITION</p>
+        <p style="font-size: 10px; margin-top:20px; text-align: left; padding: 0 40px;">
+            MISSIONE: Consegna il prompt ingegnerizzato alla casa giusta!<br><br>
+            ⬆️ ⬇️ : Muovi lo scooter<br>
+            SPACE : Lancia il Prompt<br>
+        </p>
+        <button class="btn" onclick="startGame()">START ROUTE</button>
+    </div>
+
+    <div id="edu-modal" class="modal">
+        <h2 id="edu-title" class="highlight">CONSEGNA RIUSCITA!</h2>
+        <span id="edu-tech" class="tech-badge">TECNICA: FEW-SHOT</span>
+        <p id="edu-desc" style="font-size: 10px; margin-top: 15px;">Spiegazione del concetto...</p>
+        <div id="edu-code" class="code-box">Esempio di prompt...</div>
+        <button class="btn" onclick="nextLevel()">NEXT LEVEL >></button>
+    </div>
+
+    <div id="game-over-modal" class="modal">
+        <h1 style="color:red">GAME OVER</h1>
+        <p>Hai mancato troppe consegne o colpito ostacoli!</p>
+        <button class="btn" onclick="location.reload()">RITENTA</button>
+    </div>
+</div>
+
+<script>
+/**
+ * ZALLY'S PROMPT DELIVERY
+ * Engine ver 1.1 (Image Support)
+ */
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const scoreEl = document.getElementById('score');
+const levelEl = document.getElementById('level-display');
+
+// --- ASSETS CONFIG ---
+// Metti qui il nome della tua immagine. 
+// Deve essere quadrata o rettangolare (es. 100x100px o 120x100px)
+const PLAYER_IMG_SRC = 'zally-paperboy.png'; 
+
+const zallySprite = new Image();
+zallySprite.src = PLAYER_IMG_SRC;
+let isImageLoaded = false;
+zallySprite.onload = () => { isImageLoaded = true; };
+
+// --- GAME STATE ---
+let gameState = 'START'; 
+let score = 0;
+let speed = 4;
+let frameCount = 0;
+let currentLevel = 0;
+let deliveriesMade = 0;
+const DELIVERIES_NEEDED = 3; // Quante consegne per passare il livello
+
+// --- LEVEL DATA (EDUCATION) ---
+const levels = [
+    {
+        name: "THE MIRROR HOUSE",
+        tech: "FEW-SHOT PROMPTING",
+        desc: "Invece di descrivere lo stile a parole, dai a Gemini degli esempi concreti (Input -> Output) da imitare.",
+        example: "PROMPT:\n'Ecco 3 esempi di email di sollecito che ho scritto in passato.\n[Esempio 1]\n[Esempio 2]\nOra scrivi una risposta a questo nuovo fornitore usando lo stesso tono e struttura.'",
+        targetColor: "#e74c3c" 
+    },
+    {
+        name: "LOGIC LAB",
+        tech: "CHAIN OF THOUGHT",
+        desc: "Hai costretto Gemini a 'pensare a voce alta'. Questo riduce drasticamente gli errori di calcolo o logica.",
+        example: "PROMPT:\n'Analizza questo report di magazzino.\nStep 1: Identifica i 3 ritardi maggiori.\nStep 2: Calcola l'impatto percentuale sul totale.\nStep 3: Solo alla fine, suggerisci l'azione correttiva.'",
+        targetColor: "#3498db" 
+    },
+    {
+        name: "STRUCTURE CITY",
+        tech: "DELIMITERS & STRUCTURE",
+        desc: "Hai usato i delimitatori (###) per separare i dati sporchi dalle istruzioni. Ora Gemini sa esattamente cosa leggere.",
+        example: "PROMPT:\n'Analizza solo il testo contenuto tra ###.\n###\n[EMAIL FORNITORE CONFUSA]\n###\nEstrai solo le date di consegna e mettile in una tabella.'",
+        targetColor: "#f1c40f"
+    },
+    {
+        name: "ITERATION TOWER",
+        tech: "ITERATIVE REFINEMENT",
+        desc: "Il prompt perfetto non esiste al primo colpo. Hai chiesto a Gemini di criticare e migliorare la sua stessa bozza.",
+        example: "PROMPT:\n'La risposta è corretta ma troppo lunga per Slack.\nRiscrivila in massimo 3 bullet points.\nRendi il tono più assertivo.'",
+        targetColor: "#9b59b6" 
+    }
+];
+
+// --- ENTITIES ---
+
+const player = {
+    x: 50,
+    y: 300,
+    width: 80,  // Dimensione sprite
+    height: 80, // Dimensione sprite
+    lane: 1, 
+    lanesY: [150, 300, 450], // Coordinate Y delle 3 corsie
+    
+    draw() {
+        if (isImageLoaded) {
+            // Disegna l'immagine se caricata
+            ctx.drawImage(zallySprite, this.x, this.y - 20, this.width, this.height);
+        } else {
+            // FALLBACK: Se non c'è l'immagine, disegna un rettangolo Ops Orange
+            ctx.fillStyle = '#ff6900';
+            ctx.fillRect(this.x, this.y, 60, 60);
+            // Ruote stilizzate
+            ctx.fillStyle = '#000';
+            ctx.beginPath(); ctx.arc(this.x + 10, this.y + 60, 10, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(this.x + 50, this.y + 60, 10, 0, Math.PI*2); ctx.fill();
+        }
+    },
+
+    move(dir) {
+        if (dir === 'up' && this.lane > 0) this.lane--;
+        if (dir === 'down' && this.lane < 2) this.lane++;
+        this.y = this.lanesY[this.lane];
+    }
+};
+
+let targets = []; 
+let projectiles = []; 
+
+class Target {
+    constructor() {
+        this.lane = Math.floor(Math.random() * 3);
+        this.x = canvas.width;
+        this.y = player.lanesY[this.lane];
+        this.width = 80;
+        this.height = 80;
+        this.active = true;
+        this.type = 'HOUSE'; 
+        // Colore basato sul livello corrente
+        this.color = levels[currentLevel].targetColor;
+    }
+
+    update() {
+        this.x -= speed;
+    }
+
+    draw() {
+        if (!this.active) return;
+        
+        // Disegna Casa
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.x, this.y - 20, this.width, this.height);
+        
+        // Tetto
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y - 20);
+        ctx.lineTo(this.x + 40, this.y - 60);
+        ctx.lineTo(this.x + 80, this.y - 20);
+        ctx.fill();
+
+        // Cassetta delle lettere (Bersaglio)
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(this.x - 20, this.y + 20, 30, 40);
+        
+        // Bandierina rossa
+        ctx.fillStyle = 'red';
+        ctx.fillRect(this.x - 20, this.y + 20, 15, 10);
+    }
+}
+
+class Projectile {
+    constructor() {
+        this.x = player.x + 40;
+        this.y = player.y + 20;
+        this.speedX = 12;
+        this.active = true;
+    }
+
+    update() {
+        this.x += this.speedX;
+    }
+
+    draw() {
+        if (!this.active) return;
+        ctx.fillStyle = '#fff';
+        // Icona Gemini stilizzata (Stella a 4 punte)
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y - 8);
+        ctx.lineTo(this.x + 3, this.y - 3);
+        ctx.lineTo(this.x + 8, this.y);
+        ctx.lineTo(this.x + 3, this.y + 3);
+        ctx.lineTo(this.x, this.y + 8);
+        ctx.lineTo(this.x - 3, this.y + 3);
+        ctx.lineTo(this.x - 8, this.y);
+        ctx.lineTo(this.x - 3, this.y - 3);
+        ctx.fill();
+    }
+}
+
+// --- GAME LOGIC ---
+
+function startGame() {
+    document.getElementById('start-screen').style.display = 'none';
+    gameState = 'PLAYING';
+    currentLevel = 0;
+    resetLevel();
+    loop();
+}
+
+function resetLevel() {
+    targets = [];
+    projectiles = [];
+    player.x = 50;
+    deliveriesMade = 0;
+    levelEl.innerText = `LVL ${currentLevel + 1}: ${levels[currentLevel].tech}`;
+    scoreEl.innerText = `SCORE: ${score}`;
+    speed = 4 + (currentLevel * 1.5); // Aumenta velocità ogni livello
+}
+
+function spawnEntities() {
+    // Spawna case con frequenza variabile in base alla velocità
+    let spawnRate = Math.max(60, 120 - (currentLevel * 10));
+    if (frameCount % spawnRate === 0) {
+        targets.push(new Target());
+    }
+}
+
+function checkCollisions() {
+    // Projectile vs Target
+    projectiles.forEach(p => {
+        targets.forEach(t => {
+            if (p.active && t.active) {
+                // Logica hitbox semplificata
+                if (p.x > t.x - 30 && p.x < t.x + 80 && 
+                    // Deve essere nella stessa "lane" visiva (approssimata sulla Y)
+                    Math.abs(p.y - t.y) < 60) {
+                    
+                    p.active = false;
+                    t.active = false; // Casa "servita" (scompare o cambia colore)
+                    
+                    score += 100;
+                    deliveriesMade++;
+                    scoreEl.innerText = `SCORE: ${score}`;
+
+                    // Se abbiamo fatto abbastanza consegne, fine livello
+                    if (deliveriesMade >= DELIVERIES_NEEDED) {
+                        triggerLevelComplete();
+                    }
+                }
+            }
+        });
+    });
+
+    // Cleanup oggetti usciti dallo schermo
+    targets = targets.filter(t => t.x + t.width > -100);
+    projectiles = projectiles.filter(p => p.x < canvas.width + 100);
+}
+
+function triggerLevelComplete() {
+    gameState = 'PAUSED';
+    
+    const modal = document.getElementById('edu-modal');
+    document.getElementById('edu-title').innerText = "LIVELLO COMPLETATO!";
+    document.getElementById('edu-tech').innerText = `TECNICA: ${levels[currentLevel].tech}`;
+    document.getElementById('edu-desc').innerText = levels[currentLevel].desc;
+    document.getElementById('edu-code').innerText = levels[currentLevel].example;
+    
+    modal.style.display = 'block';
+}
+
+function nextLevel() {
+    document.getElementById('edu-modal').style.display = 'none';
+    currentLevel++;
+    
+    if (currentLevel >= levels.length) {
+        // Vittoria Finale
+        alert(`COMPLIMENTI!\nHai completato il Master in Prompt Engineering!\nSCORE FINALE: ${score}`);
+        location.reload();
+    } else {
+        gameState = 'PLAYING';
+        resetLevel();
+    }
+}
+
+function loop() {
+    if (gameState !== 'PLAYING') {
+        if (gameState === 'PLAYING') requestAnimationFrame(loop);
+        return;
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Sfondo: Strada e Marciapiede
+    ctx.fillStyle = '#7f8c8d'; // Strada grigia
+    ctx.fillRect(0, 100, canvas.width, 500);
+    
+    // Corsie tratteggiate
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 4;
+    ctx.setLineDash([40, 40]);
+    ctx.beginPath();
+    ctx.moveTo(0, 225); ctx.lineTo(800, 225);
+    ctx.moveTo(0, 375); ctx.lineTo(800, 375);
+    ctx.stroke();
+    ctx.setLineDash([]); // Reset dash
+
+    spawnEntities();
+
+    // Disegna targets
+    targets.forEach(t => {
+        t.update();
+        t.draw();
+    });
+
+    // Disegna proiettili
+    projectiles.forEach(p => {
+        p.update();
+        p.draw();
+    });
+
+    // Disegna Zally
+    player.draw();
+
+    checkCollisions();
+
+    frameCount++;
+    requestAnimationFrame(loop);
+}
+
+// --- CONTROLS ---
+window.addEventListener('keydown', e => {
+    if (gameState !== 'PLAYING') return;
+
+    if (e.key === 'ArrowUp') player.move('up');
+    if (e.key === 'ArrowDown') player.move('down');
+    if (e.key === ' ') {
+        projectiles.push(new Projectile());
+    }
+});
+
+</script>
+</body>
+</html>
