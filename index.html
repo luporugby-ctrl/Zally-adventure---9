@@ -1,19 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>ZALLY'S HOOPS: PRECISION</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZALLY'S HOOPS: OPS ARCADE ENGINE</title>
     <style>
+        /* --- STILE RETRO ARCADE --- */
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
         :root {
             --zalando-orange: #ff6900;
-            --zalando-black: #1a1a1a;
-            --neon-green: #00ff00;
+            --zalando-dark: #1a1a1a;
+            --neon-green: #39ff14;
+            --neon-blue: #00ffff;
+            --crt-scanline: rgba(18, 16, 16, 0.3);
+            --cabinet-bezel: #222;
         }
 
         body {
-            background-color: #111;
+            background-color: #050505;
             margin: 0;
             display: flex;
             justify-content: center;
@@ -25,510 +30,965 @@
             user-select: none;
         }
 
-        #arcade-machine {
+        /* CABINET STRUTTURA */
+        #arcade-cabinet {
             position: relative;
             width: 1024px;
             height: 768px;
             background: #000;
-            border: 8px solid var(--zalando-orange);
-            border-radius: 10px;
-            box-shadow: 0 0 50px rgba(255, 105, 0, 0.3);
+            border: 15px solid var(--cabinet-bezel);
+            border-bottom-width: 50px;
+            border-radius: 20px;
+            box-shadow: 
+                0 0 0 5px var(--zalando-orange),
+                0 0 100px rgba(255, 105, 0, 0.2);
+            overflow: hidden;
         }
 
-        #ui-layer {
+        /* EFFETTO CRT / SCANLINES */
+        #crt-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                linear-gradient(var(--crt-scanline) 50%, rgba(0,0,0,0.1) 50%),
+                linear-gradient(90deg, rgba(255,0,0,0.06), rgba(0,255,0,0.02), rgba(0,0,255,0.06));
+            background-size: 100% 4px, 3px 100%;
+            pointer-events: none;
+            z-index: 100;
+            border-radius: 10px;
+            box-shadow: inset 0 0 80px rgba(0,0,0,0.8);
+            animation: flicker 0.15s infinite;
+        }
+
+        @keyframes flicker {
+            0% { opacity: 0.95; }
+            50% { opacity: 0.92; }
+            100% { opacity: 0.96; }
+        }
+
+        canvas { 
+            display: block; 
+            background-color: #000;
+            image-rendering: pixelated; 
+        }
+
+        /* UI OVERLAYS */
+        .ui-layer {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 50;
             pointer-events: none;
-            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
-        .hud-top {
+        .hud-bar {
             display: flex;
             justify-content: space-between;
-            padding: 20px;
+            padding: 30px;
+            text-transform: uppercase;
+            text-shadow: 3px 3px 0 #000;
             font-size: 20px;
-            text-shadow: 2px 2px #000;
         }
 
-        canvas { display: block; image-rendering: pixelated; }
+        .hud-score { color: var(--zalando-orange); }
+        .hud-level { color: var(--neon-blue); }
 
-        /* SCREENS */
-        .screen {
+        /* MODALS (MENU, LEVEL UP) */
+        .screen-modal {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95);
-            z-index: 20;
-            display: flex;
+            background: rgba(0,0,0,0.92);
+            z-index: 200;
+            display: flex; /* Flex controllato da JS */
             flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
+            pointer-events: auto;
         }
 
-        .code-box {
-            background: #222;
+        h1 { 
+            color: var(--zalando-orange); 
+            font-size: 50px; 
+            margin-bottom: 20px; 
+            text-shadow: 4px 4px 0px #fff;
+            line-height: 1.4;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: var(--neon-green);
+            margin-bottom: 40px;
+            line-height: 2;
+            max-width: 800px;
+        }
+
+        .code-terminal {
+            background: #111;
             border: 2px solid var(--zalando-orange);
             color: var(--neon-green);
+            font-family: monospace;
             padding: 20px;
             margin: 20px;
-            font-family: monospace;
-            font-size: 14px;
-            white-space: pre-wrap;
+            width: 70%;
             text-align: left;
-            max-width: 80%;
+            white-space: pre-wrap;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
         }
 
-        button {
-            background: var(--zalando-orange);
-            color: white;
-            border: 4px solid #fff;
-            padding: 20px 40px;
-            font-family: 'Press Start 2P';
-            font-size: 20px;
-            cursor: pointer;
+        .controls-box {
+            border: 2px dashed #555;
+            padding: 20px;
             margin-top: 20px;
-        }
-        button:hover { transform: scale(1.05); }
-
-        .controls-hint {
-            margin-top: 30px;
-            font-size: 12px;
             color: #aaa;
+            font-size: 12px;
             line-height: 2;
         }
-        .key {
-            background: #444;
+
+        .key-cap {
+            background: #333;
+            color: #fff;
             padding: 5px 10px;
             border-radius: 4px;
+            border-bottom: 3px solid #111;
+            margin: 0 5px;
+        }
+
+        button.arcade-btn {
+            background: var(--zalando-orange);
             color: #fff;
-            border-bottom: 3px solid #222;
+            border: 4px solid #fff;
+            padding: 20px 50px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 20px;
+            cursor: pointer;
+            margin-top: 30px;
+            text-transform: uppercase;
+            transition: transform 0.1s;
+        }
+        
+        button.arcade-btn:hover { 
+            transform: scale(1.05); 
+            background: #ff4500;
+            box-shadow: 0 0 20px var(--zalando-orange);
+        }
+
+        button.arcade-btn:active {
+            transform: scale(0.95);
         }
 
     </style>
 </head>
 <body>
 
-<div id="arcade-machine">
+<div id="arcade-cabinet">
+    <div id="crt-overlay"></div>
     <canvas id="gameCanvas" width="1024" height="768"></canvas>
     
-    <div id="ui-layer">
-        <div class="hud-top">
-            <div id="scoreDisplay">SCORE: 0000</div>
-            <div id="levelDisplay">LEVEL 1</div>
+    <!-- HUD IN GIOCO -->
+    <div class="ui-layer">
+        <div class="hud-bar">
+            <div class="hud-score" id="scoreEl">SCORE: 0000</div>
+            <div class="hud-level" id="levelEl">LEVEL 1</div>
+        </div>
+        <div style="padding: 20px; text-align: center; color: #555; font-size: 10px;">
+            ZALANDO OPERATIONS TRAINING UNIT v.4.2
         </div>
     </div>
 
-    <div id="startScreen" class="screen">
-        <h1 style="color:var(--zalando-orange); font-size:40px;">ZALLY'S HOOPS</h1>
-        <p style="color:var(--neon-green)">PROMPT OPS EDITION</p>
+    <!-- SCHERMATA START -->
+    <div id="screen-start" class="screen-modal">
+        <h1>ZALLY'S HOOPS<br>ARCADE</h1>
+        <div class="subtitle">
+            OPERATIONS ENABLEMENT SIMULATION.<br>
+            MASTER THE ART OF PROMPT ENGINEERING.
+        </div>
         
-        <div class="controls-hint">
-            <span class="key">⬅️</span> <span class="key">➡️</span>  AIM (MIRA)<br><br>
-            <span class="key">SPACE (HOLD)</span>  CHARGE POWER<br><br>
-            <span class="key">SPACE (RELEASE)</span>  SHOOT!
+        <div class="controls-box">
+            <p>CONTROLLI DI PRECISIONE:</p>
+            <div><span class="key-cap">⬅️</span> <span class="key-cap">➡️</span> MIRA (AIM)</div>
+            <div style="margin-top:10px;"><span class="key-cap">SPACE (TIENI)</span> CARICA POTENZA</div>
+            <div style="margin-top:10px;"><span class="key-cap">SPACE (RILASCIA)</span> TIRA!</div>
         </div>
 
-        <button onclick="game.init()">START GAME</button>
+        <button class="arcade-btn" onclick="Game.init()">INSERT COIN</button>
     </div>
 
-    <div id="levelScreen" class="screen" style="display:none;">
+    <!-- SCHERMATA LEVEL UP -->
+    <div id="screen-level" class="screen-modal" style="display:none;">
         <h1 style="color:var(--neon-green)">LEVEL CLEARED!</h1>
-        <p id="levelDesc" style="max-width:700px; line-height:1.5; color:#ccc;"></p>
-        <div class="code-box" id="levelCode"></div>
-        <button onclick="game.nextLevel()">NEXT LEVEL</button>
+        <p class="subtitle" id="lvl-desc">...</p>
+        <div class="code-terminal" id="lvl-code">...</div>
+        <button class="arcade-btn" onclick="Game.nextLevel()">NEXT STAGE</button>
     </div>
+    
+    <!-- SCHERMATA GAME OVER -->
+    <div id="screen-gameover" class="screen-modal" style="display:none;">
+        <h1 style="color:red">GAME OVER</h1>
+        <p class="subtitle">IL CAMPO DEL PROMPTING È DURO.<br>RITENTA E IMPARA.</p>
+        <button class="arcade-btn" onclick="Game.restart()">RETRY</button>
+    </div>
+
 </div>
 
 <script>
 /**
- * ZALLY'S HOOPS - PRECISION ENGINE
- * Controls: Arrows to Aim, Hold Space to Shoot
+ * =============================================================================
+ * ZALLY'S HOOPS - CORE ENGINE (JAVASCRIPT ES6)
+ * =============================================================================
+ * Un motore di gioco completo scritto da zero per simulare un'esperienza
+ * Arcade anni '80 per il training Operations di Zalando.
+ * * Moduli:
+ * 1. Math & Physics (Vettori, Collisioni)
+ * 2. Audio Synthesizer (Generazione sonora procedurale)
+ * 3. Graphics (Pixel Art procedurale, Particle System)
+ * 4. Game Logic (Stati, Livelli, Input Handling)
+ * =============================================================================
  */
 
+// --- CONFIGURAZIONE GLOBALE ---
 const CONFIG = {
+    gravity: 0.5,
+    friction: 0.99,
+    groundY: 650,
     colors: {
         orange: '#ff6900',
         white: '#ffffff',
         skyTop: '#050510',
-        skyBot: '#202040'
+        skyBot: '#202040',
+        crowd: ['#333', '#444', '#555', '#ff6900', '#fff']
     },
-    gravity: 0.6,
     levels: [
         {
-            title: "LEVEL 1: FEW-SHOT",
-            dist: 450,
+            title: "LVL 1: FEW-SHOT",
+            req: 1, // Canestri richiesti
+            dist: 400, // Distanza canestro
             wind: 0,
-            req: 1,
-            desc: "GEMINI NEEDS CONTEXT. Don't be vague. Give 2-3 examples of what you want (Input -> Output) to get the perfect format.",
-            code: "PROMPT:\n'Convert these emails to tickets. Follow this example:'\nInput: [Email Text] -> Output: [Ticket ID, Summary]\nInput: [Email Text] -> Output: [Ticket ID, Summary]\nNow do this: [New Email]"
+            desc: "GEMINI HA BISOGNO DI CONTESTO. Non essere vago. Dai 2-3 esempi (Input -> Output) per definire il formato.",
+            code: "PROMPT:\n'Trasforma queste email in ticket. Segui l'esempio:'\nInput: [Testo Email] -> Output: [ID Ticket, Riassunto]\nInput: [Testo Email] -> Output: [ID Ticket, Riassunto]\nOra fai questo: [Nuova Email]"
         },
         {
-            title: "LEVEL 2: CHAIN OF THOUGHT",
-            dist: 600,
-            wind: 0,
+            title: "LVL 2: CHAIN OF THOUGHT",
             req: 1,
-            desc: "COMPLEX LOGIC? FORCE A PLAN. Use the magic phrase 'Think Step-by-Step' to stop Gemini from guessing.",
-            code: "PROMPT:\n'Analyze the Q3 Variance Report.'\nTHINK STEP-BY-STEP:\n1. Identify categories over budget\n2. Calculate % difference\n3. List top 3 offenders"
-        },
-        {
-            title: "LEVEL 3: DELIMITERS",
             dist: 550,
-            wind: 1.5,
-            req: 2,
-            desc: "CLEAN UP THE MESS. Use ### to separate your instructions from the dirty data you paste.",
-            code: "PROMPT:\n'Extract dates from the text between ###'\n###\n[Paste messy supplier email here]\n###"
+            wind: 0,
+            desc: "LOGICA COMPLESSA? FORZA UN PIANO. Usa la frase magica 'Think Step-by-Step' per evitare che Gemini tiri a indovinare.",
+            code: "PROMPT:\n'Analizza il Report Q3.'\nTHINK STEP-BY-STEP:\n1. Identifica le categorie fuori budget\n2. Calcola la differenza %\n3. Elenca i top 3 problemi"
         },
         {
-            title: "LEVEL 4: KEYWORDS",
-            dist: 700,
-            wind: 0.5,
+            title: "LVL 3: DELIMITERS",
             req: 2,
-            desc: "USE POWER WORDS. Ask for specific formats: [TABLE], [PYTHON SCRIPT], [JSON], [CSV].",
-            code: "PROMPT:\n'Analyze this feedback.\nOutput format: A [TABLE] with columns: Sentiment, Key Issue, Urgency.\nThen write a [PYTHON SCRIPT] to chart it.'"
+            dist: 500,
+            wind: 1.2, // Vento attivato
+            desc: "DATI SPORCHI? PROTEGGILI. Usa ### per separare le tue istruzioni dai dati copiati male.",
+            code: "PROMPT:\n'Estrai le date dal testo compreso tra ###'\n###\n[Incolla qui l'email confusa del fornitore]\n###"
+        },
+        {
+            title: "LVL 4: KEYWORDS",
+            req: 3,
+            dist: 650,
+            wind: 0.5,
+            desc: "USA LE PAROLE POTENTI. Chiedi formati specifici: [TABLE], [PYTHON SCRIPT], [JSON], [INFOGRAPHIC].",
+            code: "PROMPT:\n'Analizza questo feedback.\nFormato Output: Una [TABLE] con colonne: Sentiment, Problema, Urgenza.\nPoi scrivi uno [PYTHON SCRIPT] per farne un grafico.'"
         }
     ]
 };
 
-// AUDIO SYSTEM
-const AudioSys = {
+/**
+ * ------------------------------------------------------------------
+ * 1. UTILITIES & MATH LIBRARY
+ * ------------------------------------------------------------------
+ */
+class Vector {
+    constructor(x, y) { this.x = x; this.y = y; }
+    add(v) { this.x += v.x; this.y += v.y; return this; }
+    sub(v) { this.x -= v.x; this.y -= v.y; return this; }
+    mult(n) { this.x *= n; this.y *= n; return this; }
+    mag() { return Math.sqrt(this.x*this.x + this.y*this.y); }
+    copy() { return new Vector(this.x, this.y); }
+    static dist(v1, v2) {
+        let dx = v1.x - v2.x;
+        let dy = v1.y - v2.y;
+        return Math.sqrt(dx*dx + dy*dy);
+    }
+}
+
+const Utils = {
+    rand: (min, max) => Math.random() * (max - min) + min,
+    randInt: (min, max) => Math.floor(Math.random() * (max - min + 1) + min),
+    clamp: (val, min, max) => Math.max(min, Math.min(max, val))
+};
+
+/**
+ * ------------------------------------------------------------------
+ * 2. AUDIO ENGINE (PROCEDURAL SYNTHESIZER)
+ * Genera suoni 8-bit senza file esterni.
+ * ------------------------------------------------------------------
+ */
+const AudioEngine = {
     ctx: null,
+    masterGain: null,
+    
     init() {
         window.AudioContext = window.AudioContext || window.webkitAudioContext;
         this.ctx = new AudioContext();
+        this.masterGain = this.ctx.createGain();
+        this.masterGain.gain.value = 0.3; // Volume Master
+        this.masterGain.connect(this.ctx.destination);
     },
-    play(freq, type, dur, vol=0.1) {
+
+    playTone(freq, type, duration, slide = 0) {
         if(!this.ctx) return;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
-        osc.type = type;
+        
+        osc.type = type; // 'square', 'sawtooth', 'triangle'
         osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-        gain.gain.setValueAtTime(vol, this.ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + dur);
+        if(slide !== 0) {
+            osc.frequency.linearRampToValueAtTime(freq + slide, this.ctx.currentTime + duration);
+        }
+
+        gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+
         osc.connect(gain);
-        gain.connect(this.ctx.destination);
+        gain.connect(this.masterGain);
+        
         osc.start();
-        osc.stop(this.ctx.currentTime + dur);
+        osc.stop(this.ctx.currentTime + duration);
     },
-    chargeSound(vol) {
-        // Continuous rising pitch
+
+    playNoise(duration) { // Per applausi ed esplosioni
         if(!this.ctx) return;
-        this.play(200 + (vol*5), 'sawtooth', 0.1, 0.05);
-    }
+        const bufferSize = this.ctx.sampleRate * duration;
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + duration);
+        noise.connect(gain);
+        gain.connect(this.masterGain);
+        noise.start();
+    },
+
+    // SFX PRESETS
+    sfxAimMove() { this.playTone(400, 'triangle', 0.05); },
+    sfxCharge(power) { this.playTone(200 + power*3, 'sawtooth', 0.1); },
+    sfxShoot() { this.playTone(150, 'square', 0.3, -100); }, // Pitch slide down
+    sfxBounce() { this.playTone(100, 'square', 0.1); },
+    sfxSwish() { 
+        this.playTone(800, 'sine', 0.1); 
+        this.playTone(1200, 'sine', 0.2); 
+    },
+    sfxCheer() { 
+        this.playTone(400, 'square', 0.1, 200); 
+        this.playTone(500, 'square', 0.1, 200); 
+        this.playNoise(0.5);
+    },
+    sfxMiss() { this.playTone(100, 'sawtooth', 0.5, -50); }
 };
 
-class Game {
+/**
+ * ------------------------------------------------------------------
+ * 3. PARTICLE SYSTEM
+ * Gestisce effetti visivi (Scie, Esplosioni, Vento)
+ * ------------------------------------------------------------------
+ */
+class Particle {
+    constructor(x, y, type) {
+        this.pos = new Vector(x, y);
+        this.vel = new Vector(0, 0);
+        this.life = 1.0;
+        this.type = type; // 'firework', 'trail', 'wind'
+        
+        if (type === 'firework') {
+            this.vel = new Vector(Utils.rand(-5, 5), Utils.rand(-5, 5));
+            this.color = Math.random() > 0.5 ? CONFIG.colors.orange : '#fff';
+            this.size = Utils.rand(2, 6);
+            this.decay = 0.02;
+        } else if (type === 'trail') {
+            this.color = 'rgba(255, 255, 255, 0.5)';
+            this.size = 3;
+            this.decay = 0.05;
+        } else if (type === 'wind') {
+            this.vel = new Vector(Utils.rand(2, 5), 0);
+            this.color = 'rgba(255, 255, 255, 0.1)';
+            this.size = 2;
+            this.decay = 0.01;
+            this.pos.y = Utils.rand(0, 600);
+            this.pos.x = -10;
+        }
+    }
+
+    update() {
+        this.pos.add(this.vel);
+        this.life -= this.decay;
+        if(this.type === 'firework') this.vel.y += 0.1; // Gravity on particles
+    }
+
+    draw(ctx) {
+        ctx.save();
+        ctx.globalAlpha = this.life;
+        ctx.fillStyle = this.color;
+        if (this.type === 'wind') {
+            ctx.fillRect(this.pos.x, this.pos.y, 20, 2); // Wind streak
+        } else {
+            ctx.fillRect(this.pos.x, this.pos.y, this.size, this.size);
+        }
+        ctx.restore();
+    }
+}
+
+/**
+ * ------------------------------------------------------------------
+ * 4. GAME ENTITIES (Player, Ball, Hoop)
+ * ------------------------------------------------------------------
+ */
+class Player {
     constructor() {
+        this.pos = new Vector(100, CONFIG.groundY - 100);
+    }
+
+    // Disegna Zally in Pixel Art procedurale
+    draw(ctx) {
+        const x = this.pos.x;
+        const y = this.pos.y;
+        
+        ctx.save();
+        
+        // Shadow
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        ctx.fillRect(x + 10, y + 95, 60, 5);
+
+        // Legs (Black tights)
+        ctx.fillStyle = '#111';
+        ctx.fillRect(x + 20, y + 60, 15, 40); // Left Leg
+        ctx.fillRect(x + 45, y + 60, 15, 40); // Right Leg
+
+        // Body (Zalando Orange Hoodie)
+        ctx.fillStyle = CONFIG.colors.orange;
+        ctx.fillRect(x + 15, y + 25, 50, 40); // Torso
+        
+        // Arms (Holding ball pose)
+        ctx.fillRect(x + 40, y + 15, 30, 15); // Arms up
+
+        // Head (Skin tone)
+        ctx.fillStyle = '#ffccaa';
+        ctx.fillRect(x + 25, y - 5, 30, 30);
+
+        // Hair / Cap (Black)
+        ctx.fillStyle = '#111';
+        ctx.fillRect(x + 25, y - 10, 32, 10); // Cap top
+        ctx.fillRect(x + 45, y - 10, 20, 5);  // Visor
+
+        // Logo Z (Pixel)
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(x + 35, y + 35, 10, 10);
+
+        ctx.restore();
+    }
+}
+
+class Hoop {
+    constructor(x, y) {
+        this.pos = new Vector(x, y);
+    }
+
+    draw(ctx) {
+        const x = this.pos.x;
+        const y = this.pos.y;
+
+        // Pole
+        ctx.fillStyle = '#555';
+        ctx.fillRect(x + 60, y, 15, CONFIG.groundY - y);
+
+        // Backboard
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(x + 50, y - 80, 5, 90);
+        
+        // Orange Target Square on Backboard
+        ctx.fillStyle = CONFIG.colors.orange;
+        ctx.fillRect(x + 51, y - 60, 4, 40);
+
+        // Rim
+        ctx.fillStyle = CONFIG.colors.orange;
+        ctx.fillRect(x, y, 50, 5);
+
+        // Net (Procedural Lines)
+        ctx.strokeStyle = '#ccc';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        // Zig Zag pattern
+        ctx.moveTo(x, y + 5); ctx.lineTo(x + 10, y + 40);
+        ctx.moveTo(x + 10, y + 5); ctx.lineTo(x + 20, y + 40);
+        ctx.moveTo(x + 20, y + 5); ctx.lineTo(x + 30, y + 40);
+        ctx.moveTo(x + 30, y + 5); ctx.lineTo(x + 40, y + 40);
+        ctx.moveTo(x + 40, y + 5); ctx.lineTo(x + 50, y + 40);
+        // Cross lines
+        ctx.moveTo(x + 50, y + 5); ctx.lineTo(x + 40, y + 40);
+        ctx.moveTo(x + 40, y + 5); ctx.lineTo(x + 30, y + 40);
+        ctx.moveTo(x + 30, y + 5); ctx.lineTo(x + 20, y + 40);
+        ctx.moveTo(x + 20, y + 5); ctx.lineTo(x + 10, y + 40);
+        ctx.moveTo(x + 10, y + 5); ctx.lineTo(x, y + 40);
+        ctx.stroke();
+    }
+}
+
+/**
+ * ------------------------------------------------------------------
+ * 5. MAIN GAME ENGINE CONTROLLER
+ * Gestisce loop, stati, input, rendering
+ * ------------------------------------------------------------------
+ */
+const Game = {
+    canvas: null,
+    ctx: null,
+    width: 1024,
+    height: 768,
+    
+    // State
+    state: 'MENU', // MENU, PLAY, FLIGHT, ANIMATE, GAMEOVER
+    levelIdx: 0,
+    score: 0,
+    shotsMade: 0,
+    
+    // Inputs
+    keys: { left: false, right: false, space: false },
+    angle: 45,
+    power: 0,
+    powerDir: 1, // 1 = su, -1 = giù (oscillazione carica)
+
+    // Objects
+    player: null,
+    hoop: null,
+    ball: { pos: new Vector(0,0), vel: new Vector(0,0), r: 14, active: false },
+    
+    // FX
+    particles: [],
+    floaters: [], // Testi fluttuanti
+    shake: 0, // Screen shake intensity
+    wind: 0,
+
+    init() {
         this.canvas = document.getElementById('gameCanvas');
         this.ctx = this.canvas.getContext('2d');
         
-        // Input State
-        this.keys = { left:false, right:false, space:false };
+        // Setup Event Listeners
+        window.addEventListener('keydown', e => this.handleKey(e, true));
+        window.addEventListener('keyup', e => this.handleKey(e, false));
         
-        // Game Objects
-        this.ball = { x:0, y:0, vx:0, vy:0, active:false };
-        this.player = { x:100, y:550 };
-        this.hoop = { x:800, y:250 };
+        // Hide Menu
+        document.getElementById('screen-start').style.display = 'none';
         
-        // Game State
-        this.state = 'MENU'; // MENU, PLAY, FLIGHT, ANIMATING
-        this.levelIdx = 0;
-        this.score = 0;
-        this.shotsMade = 0;
+        // Init Audio
+        AudioEngine.init();
 
-        // Shot Params
-        this.angle = 45;
-        this.power = 0;
-        this.wind = 0;
+        // Init Entities
+        this.player = new Player();
+        this.hoop = new Hoop(800, 250);
 
-        // Visuals
-        this.particles = [];
-        this.floaters = [];
-
-        // Events
-        window.addEventListener('keydown', e => this.onKey(e, true));
-        window.addEventListener('keyup', e => this.onKey(e, false));
+        // Start Level 1
+        this.startLevel(0);
         
-        // Loop
-        this.loop = this.loop.bind(this);
-        requestAnimationFrame(this.loop);
-    }
+        // Start Loop
+        requestAnimationFrame(timestamp => this.loop(timestamp));
+    },
 
-    onKey(e, isDown) {
-        if(e.code === 'ArrowLeft') this.keys.left = isDown;
-        if(e.code === 'ArrowRight') this.keys.right = isDown;
-        
-        if(e.code === 'Space') {
-            if(this.state === 'MENU') return; // Handled by button
-            
-            // SHOOT ON RELEASE
-            if(this.keys.space && !isDown && this.state === 'PLAY' && this.power > 0) {
+    handleKey(e, isDown) {
+        if (e.code === 'ArrowLeft') this.keys.left = isDown;
+        if (e.code === 'ArrowRight') this.keys.right = isDown;
+        if (e.code === 'Space') {
+            // Logica di "Charge & Release"
+            if (isDown && !this.keys.space && this.state === 'PLAY') {
+                // Inizio carica
+                this.power = 0;
+            }
+            if (!isDown && this.keys.space && this.state === 'PLAY') {
+                // Rilascio -> Tiro
                 this.shoot();
             }
             this.keys.space = isDown;
         }
-    }
-
-    init() {
-        document.getElementById('startScreen').style.display = 'none';
-        AudioSys.init();
-        this.startLevel(0);
-    }
+    },
 
     startLevel(idx) {
         this.levelIdx = idx;
         this.shotsMade = 0;
-        document.getElementById('levelScreen').style.display = 'none';
+        this.state = 'PLAY';
+        
+        document.getElementById('screen-level').style.display = 'none';
         this.updateHUD();
         this.resetShot();
-    }
+    },
 
     resetShot() {
         this.state = 'PLAY';
         this.ball.active = false;
         this.power = 0;
         this.angle = 45;
-        
+
+        // Configura il livello
         const lvl = CONFIG.levels[this.levelIdx];
-        this.player.x = this.hoop.x - lvl.dist;
-        this.ball.x = this.player.x + 40;
-        this.ball.y = this.player.y - 20;
+        this.hoop.pos.x = 200 + lvl.dist; // Posiziona canestro
+        this.player.pos.x = 100; // Player fisso
         
-        this.wind = lvl.wind ? (Math.random()*lvl.wind - lvl.wind/2) : 0;
-    }
+        // Palla in mano al player
+        this.ball.pos.x = this.player.pos.x + 80;
+        this.ball.pos.y = this.player.pos.y + 20;
+        this.ball.vel = new Vector(0,0);
 
-    update() {
-        // 1. INPUT HANDLING (AIMING & CHARGING)
-        if(this.state === 'PLAY') {
-            // Aim
-            if(this.keys.left && this.angle < 85) this.angle += 1.5;
-            if(this.keys.right && this.angle > 10) this.angle -= 1.5;
-
-            // Charge
-            if(this.keys.space) {
-                if(this.power < 100) {
-                    this.power += 1.5;
-                    if(this.power % 10 < 2) AudioSys.chargeSound(this.power);
-                }
-            } else {
-                // Decay power if space released but not shot (rare edge case)
-                if(this.power > 0 && !this.ball.active) this.power = 0;
-            }
-        }
-
-        // 2. BALL PHYSICS
-        if(this.state === 'FLIGHT' && this.ball.active) {
-            this.ball.vy += CONFIG.gravity;
-            this.ball.vx *= 0.995; // Drag
-            this.ball.x += this.ball.vx + this.wind;
-            this.ball.y += this.ball.vy;
-
-            // Floor
-            if(this.ball.y > 650) {
-                this.ball.y = 650;
-                this.ball.vy *= -0.6;
-                this.ball.vx *= 0.8;
-                if(Math.abs(this.ball.vy) < 1) this.fail("TOO SHORT");
-            }
-
-            // Hoop Detection (Simplified Box + Circle)
-            let dx = this.ball.x - (this.hoop.x + 25);
-            let dy = this.ball.y - this.hoop.y;
-            let dist = Math.sqrt(dx*dx + dy*dy);
-            
-            // Hit Rim?
-            if(dist < 50 && this.ball.vy > 0) {
-                this.success();
-            }
-
-            // Out of bounds
-            if(this.ball.x > 1024) this.fail("AIRBALL");
-        }
-
-        // 3. PARTICLES
-        this.particles.forEach((p,i) => {
-            p.x += p.vx; p.y += p.vy; p.life -= 0.05;
-            if(p.life <= 0) this.particles.splice(i,1);
-        });
-
-        // 4. FLOATERS
-        this.floaters.forEach((f,i) => {
-            f.y -= 1; f.life--;
-            if(f.life <= 0) this.floaters.splice(i,1);
-        });
-    }
+        // Vento
+        this.wind = lvl.wind ? Utils.rand(-lvl.wind, lvl.wind) : 0;
+    },
 
     shoot() {
         this.state = 'FLIGHT';
         this.ball.active = true;
-        AudioSys.play(150, 'square', 0.2);
+        AudioEngine.sfxShoot();
 
+        // Calcolo Vettore Tiro
         const rad = (this.angle * Math.PI) / 180;
-        const speed = (this.power / 100) * 22 + 10;
+        // La potenza (0-100) viene mappata su una velocità (10-28)
+        const speed = (this.power / 100) * 18 + 12;
 
-        this.ball.vx = Math.cos(rad) * speed;
-        this.ball.vy = -Math.sin(rad) * speed;
-    }
+        this.ball.vel.x = Math.cos(rad) * speed;
+        this.ball.vel.y = -Math.sin(rad) * speed;
+
+        // Spawn particles (muzzle flash)
+        for(let i=0; i<10; i++) this.addParticle(this.ball.pos.x, this.ball.pos.y, 'trail');
+    },
+
+    update() {
+        // --- 1. GESTIONE INPUT (MIRA E CARICA) ---
+        if (this.state === 'PLAY') {
+            // Mira
+            if (this.keys.left && this.angle < 85) {
+                this.angle += 1;
+                AudioEngine.sfxAimMove();
+            }
+            if (this.keys.right && this.angle > 10) {
+                this.angle -= 1;
+                AudioEngine.sfxAimMove();
+            }
+
+            // Carica Potenza
+            if (this.keys.space) {
+                this.power += 1.5 * this.powerDir;
+                if (this.power >= 100 || this.power <= 0) this.powerDir *= -1;
+                
+                // Suono di carica crescente (ogni 10 tick)
+                if(Math.floor(this.power)%10 === 0) AudioEngine.sfxCharge(this.power);
+            }
+        }
+
+        // --- 2. FISICA DELLA PALLA ---
+        if (this.state === 'FLIGHT' && this.ball.active) {
+            // Gravità
+            this.ball.vel.y += CONFIG.gravity;
+            // Vento
+            this.ball.vel.x += this.wind * 0.05;
+            // Attrito aria
+            this.ball.vel.mult(0.999);
+
+            this.ball.pos.add(this.ball.vel);
+
+            // Scia Palla
+            if(Math.random() > 0.5) this.addParticle(this.ball.pos.x, this.ball.pos.y, 'trail');
+
+            // Collisione Pavimento
+            if (this.ball.pos.y > CONFIG.groundY) {
+                this.ball.pos.y = CONFIG.groundY;
+                this.ball.vel.y *= -0.7; // Rimbalzo smorzato
+                this.ball.vel.x *= 0.8;  // Attrito pavimento
+                AudioEngine.sfxBounce();
+                
+                // Se si ferma
+                if (Math.abs(this.ball.vel.y) < 1 && Math.abs(this.ball.vel.x) < 0.5) {
+                    this.fail("TOO SHORT");
+                }
+            }
+
+            // Collisione Fuori Campo
+            if (this.ball.pos.x > this.width + 50) this.fail("AIRBALL");
+
+            // --- COLLISIONI CANESTRO (Avanzate) ---
+            const bx = this.ball.pos.x;
+            const by = this.ball.pos.y;
+            const hx = this.hoop.pos.x;
+            const hy = this.hoop.pos.y;
+
+            // 1. Tabellone (Rettangolo)
+            if (bx > hx + 50 && bx < hx + 60 && by > hy - 100 && by < hy) {
+                this.ball.vel.x *= -0.5;
+                this.shake = 5;
+                AudioEngine.sfxBounce();
+            }
+
+            // 2. Ferro (Cerchio)
+            // Distanza dal centro del canestro (hx + 25)
+            let dx = bx - (hx + 25);
+            let dy = by - hy;
+            let dist = Math.sqrt(dx*dx + dy*dy);
+
+            // Rilevamento Successo: Deve essere vicino al centro E muoversi verso il basso
+            if (dist < 35 && this.ball.vel.y > 0) {
+                this.success();
+            }
+            
+            // Collisione Ferro (Se colpisce i bordi del cerchio immaginario)
+            // Semplificata: se colpisce la parte anteriore del ferro
+            let distFrontRim = Vector.dist(this.ball.pos, new Vector(hx, hy));
+            if(distFrontRim < 15) {
+                 this.ball.vel.x *= -0.8;
+                 this.ball.vel.y *= -0.8;
+                 AudioEngine.sfxBounce();
+            }
+        }
+
+        // --- 3. FX UPDATE ---
+        // Particles
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+            this.particles[i].update();
+            if (this.particles[i].life <= 0) this.particles.splice(i, 1);
+        }
+        
+        // Floaters (Text)
+        for (let i = this.floaters.length - 1; i >= 0; i--) {
+            this.floaters[i].y -= 1;
+            this.floaters[i].life--;
+            if (this.floaters[i].life <= 0) this.floaters.splice(i, 1);
+        }
+
+        // Shake Decay
+        if (this.shake > 0) {
+            this.shake *= 0.9;
+            if (this.shake < 0.5) this.shake = 0;
+        }
+
+        // Genera vento particellare se c'è vento nel livello
+        if (this.wind !== 0 && Math.random() > 0.9) {
+            this.addParticle(0, Utils.rand(0, 600), 'wind');
+        }
+    },
 
     success() {
-        if(this.state === 'ANIMATING') return;
-        this.state = 'ANIMATING';
+        if (this.state === 'ANIMATE') return;
+        this.state = 'ANIMATE';
+        
         this.score += 500;
         this.shotsMade++;
-        AudioSys.play(600, 'triangle', 0.1);
-        setTimeout(()=>AudioSys.play(900, 'triangle', 0.3), 100);
+        AudioEngine.sfxSwish();
+        AudioEngine.sfxCheer();
+        
+        this.shake = 10;
+        this.addFloater("SWISH!", this.hoop.pos.x, this.hoop.pos.y - 50, '#39ff14');
 
-        this.spawnParticles(this.hoop.x+25, this.hoop.y, 30, '#ff6900');
-        this.spawnFloater("SWISH!", this.hoop.x, this.hoop.y-50, '#0f0');
+        // Fireworks confetti
+        for(let i=0; i<30; i++) {
+            this.addParticle(this.hoop.pos.x + 25, this.hoop.pos.y, 'firework');
+        }
 
         this.updateHUD();
 
         setTimeout(() => {
-            if(this.shotsMade >= CONFIG.levels[this.levelIdx].req) {
+            if (this.shotsMade >= CONFIG.levels[this.levelIdx].req) {
                 this.showLevelUp();
             } else {
                 this.resetShot();
             }
-        }, 1500);
-    }
+        }, 2000);
+    },
 
     fail(reason) {
-        if(this.state === 'ANIMATING') return;
-        this.state = 'ANIMATING';
-        AudioSys.play(100, 'sawtooth', 0.3);
-        this.spawnFloater(reason, this.ball.x, this.ball.y-50, '#f00');
-        setTimeout(() => this.resetShot(), 1000);
-    }
+        if (this.state === 'ANIMATE') return;
+        this.state = 'ANIMATE';
+        AudioEngine.sfxMiss();
+        this.addFloater(reason, this.ball.pos.x, this.ball.pos.y - 50, '#ff0000');
+        setTimeout(() => this.resetShot(), 1500);
+    },
 
-    // DRAWING
+    // --- RENDERING ---
     draw() {
-        // Clear
-        this.ctx.fillStyle = CONFIG.colors.skyTop;
-        this.ctx.fillRect(0,0,1024,768);
-        
-        // Draw City
-        this.drawCity();
+        // Clear screen
+        this.ctx.fillStyle = '#000';
+        this.ctx.fillRect(0, 0, this.width, this.height);
 
-        // Floor
-        this.ctx.fillStyle = '#222';
-        this.ctx.fillRect(0, 650, 1024, 118);
-        this.ctx.fillStyle = CONFIG.colors.orange;
-        this.ctx.fillRect(0, 650, 1024, 5);
-
-        // Hoop
-        const hx = this.hoop.x; const hy = this.hoop.y;
-        this.ctx.fillStyle = '#555'; this.ctx.fillRect(hx+60, hy, 10, 650-hy); // Pole
-        this.ctx.fillStyle = '#fff'; this.ctx.fillRect(hx+50, hy-80, 5, 90); // Board
-        this.ctx.fillStyle = CONFIG.colors.orange; this.ctx.fillRect(hx, hy, 50, 5); // Rim
-
-        // Player (Zally 8-bit)
-        this.drawZally();
-
-        // Ball
-        if(this.ball.active) {
-            this.ctx.fillStyle = CONFIG.colors.orange;
-            this.ctx.beginPath(); this.ctx.arc(this.ball.x, this.ball.y, 12, 0, Math.PI*2); this.ctx.fill();
-        }
-
-        // Aim Line & Power
-        if(this.state === 'PLAY') this.drawUI();
-
-        // FX
-        this.particles.forEach(p => {
-            this.ctx.fillStyle = p.c; this.ctx.fillRect(p.x, p.y, 6, 6);
-        });
-        this.floaters.forEach(f => {
-            this.ctx.fillStyle = f.c; this.ctx.font = "20px 'Press Start 2P'"; this.ctx.fillText(f.txt, f.x, f.y);
-        });
-    }
-
-    drawZally() {
-        const px = this.player.x; const py = this.player.y;
         this.ctx.save();
-        this.ctx.translate(px, py);
-        // Body
-        this.ctx.fillStyle = CONFIG.colors.orange; this.ctx.fillRect(0, 0, 40, 60);
-        // Head
-        this.ctx.fillStyle = '#ffccaa'; this.ctx.fillRect(5, -20, 30, 20);
-        // Hat
-        this.ctx.fillStyle = '#000'; this.ctx.fillRect(5, -25, 30, 5); this.ctx.fillRect(25, -25, 15, 5);
-        this.ctx.restore();
-    }
-
-    drawCity() {
-        this.ctx.fillStyle = '#101020';
-        for(let i=0; i<15; i++) {
-            let h = 100 + Math.sin(i*132)*80;
-            this.ctx.fillRect(i*80, 650-h, 75, h);
-            this.ctx.fillStyle = Math.random()>0.95 ? '#ff6900' : '#050510';
-            this.ctx.fillRect(i*80+10, 650-h+20, 5, 5);
-            this.ctx.fillStyle = '#101020';
+        
+        // Camera Shake
+        if (this.shake > 0) {
+            this.ctx.translate(Utils.rand(-this.shake, this.shake), Utils.rand(-this.shake, this.shake));
         }
-    }
+
+        // 1. SKY & CITY (Parallax)
+        this.drawSky();
+
+        // 2. GROUND & CROWD
+        this.drawCrowd();
+        this.ctx.fillStyle = '#222';
+        this.ctx.fillRect(0, CONFIG.groundY, this.width, this.height - CONFIG.groundY);
+        this.ctx.strokeStyle = CONFIG.colors.orange;
+        this.ctx.beginPath();
+        this.ctx.moveTo(0, CONFIG.groundY); 
+        this.ctx.lineTo(this.width, CONFIG.groundY);
+        this.ctx.stroke();
+
+        // 3. ENTITIES
+        this.hoop.draw(this.ctx);
+        this.player.draw(this.ctx);
+
+        // 4. BALL
+        if (this.ball.active) {
+            this.ctx.fillStyle = CONFIG.colors.orange;
+            this.ctx.beginPath();
+            this.ctx.arc(this.ball.pos.x, this.ball.pos.y, this.ball.r, 0, Math.PI * 2);
+            this.ctx.fill();
+            // Detail
+            this.ctx.strokeStyle = '#000';
+            this.ctx.lineWidth = 2;
+            this.ctx.stroke();
+        }
+
+        // 5. FX (Particles)
+        this.particles.forEach(p => p.draw(this.ctx));
+
+        // 6. UI OVERLAYS (Aim & Power)
+        if (this.state === 'PLAY') this.drawUI();
+
+        // 7. FLOATERS
+        this.floaters.forEach(f => {
+            this.ctx.font = "20px 'Press Start 2P'";
+            this.ctx.fillStyle = f.color;
+            this.ctx.fillText(f.text, f.x, f.y);
+        });
+
+        this.ctx.restore();
+    },
+
+    drawSky() {
+        // Gradient Sky
+        let grad = this.ctx.createLinearGradient(0, 0, 0, 600);
+        grad.addColorStop(0, CONFIG.colors.skyTop);
+        grad.addColorStop(1, CONFIG.colors.skyBot);
+        this.ctx.fillStyle = grad;
+        this.ctx.fillRect(0, 0, this.width, 600);
+
+        // Moon
+        this.ctx.fillStyle = '#fff';
+        this.ctx.fillRect(800, 50, 40, 40);
+
+        // Buildings (Procedural)
+        this.ctx.fillStyle = '#0f0f1a';
+        for (let i = 0; i < 20; i++) {
+            let h = 100 + Math.sin(i * 132) * 80;
+            let x = i * 60;
+            this.ctx.fillRect(x, CONFIG.groundY - h, 65, h);
+            
+            // Windows
+            this.ctx.fillStyle = Math.random() > 0.98 ? CONFIG.colors.orange : '#1a1a2e';
+            this.ctx.fillRect(x + 10, CONFIG.groundY - h + 10, 5, 5);
+            this.ctx.fillStyle = '#0f0f1a';
+        }
+    },
+
+    drawCrowd() {
+        // Pubblico stilizzato
+        for(let i=0; i<50; i++) {
+            let cx = i * 25;
+            let cy = CONFIG.groundY - 40 + (Math.sin(i)*5);
+            
+            // Se si ha appena segnato, il pubblico salta
+            if(this.state === 'ANIMATE') cy -= Math.abs(Math.sin(Date.now()/100 + i))*20;
+
+            this.ctx.fillStyle = CONFIG.colors.crowd[i % CONFIG.colors.crowd.length];
+            this.ctx.fillRect(cx, cy, 20, 40);
+            
+            // Eyes
+            this.ctx.fillStyle = '#fff';
+            this.ctx.fillRect(cx+5, cy+5, 2, 2);
+            this.ctx.fillRect(cx+12, cy+5, 2, 2);
+        }
+    },
 
     drawUI() {
-        const ax = this.player.x + 40; const ay = this.player.y;
-        const len = 80;
-        const rad = -(this.angle * Math.PI)/180;
+        const px = this.player.pos.x + 40;
+        const py = this.player.pos.y;
+        const len = 100;
+        const rad = -(this.angle * Math.PI) / 180;
 
-        // Aim Line
+        // Linea tratteggiata mira
         this.ctx.strokeStyle = '#fff';
-        this.ctx.setLineDash([5,5]);
         this.ctx.lineWidth = 2;
+        this.ctx.setLineDash([5, 5]);
         this.ctx.beginPath();
-        this.ctx.moveTo(ax, ay);
-        this.ctx.lineTo(ax + Math.cos(rad)*len, ay + Math.sin(rad)*len);
+        this.ctx.moveTo(px, py);
+        this.ctx.lineTo(px + Math.cos(rad) * len, py + Math.sin(rad) * len);
         this.ctx.stroke();
         this.ctx.setLineDash([]);
 
-        // Power Bar
-        this.ctx.fillStyle = '#fff';
-        this.ctx.fillRect(ax-20, ay-50, 60, 10);
-        this.ctx.fillStyle = this.power > 90 ? '#f00' : CONFIG.colors.orange;
-        this.ctx.fillRect(ax-20, ay-50, (this.power/100)*60, 10);
-    }
+        // Barra Potenza
+        this.ctx.fillStyle = '#333';
+        this.ctx.fillRect(px - 30, py - 60, 60, 10);
+        
+        let color = '#0f0';
+        if(this.power > 50) color = '#ff0';
+        if(this.power > 80) color = '#f00';
+        
+        this.ctx.fillStyle = color;
+        this.ctx.fillRect(px - 30, py - 60, (this.power / 100) * 60, 10);
+        
+        // Bordino
+        this.ctx.strokeStyle = '#fff';
+        this.ctx.strokeRect(px - 30, py - 60, 60, 10);
+    },
 
-    spawnParticles(x, y, count, c) {
-        for(let i=0; i<count; i++) {
-            this.particles.push({
-                x:x, y:y, 
-                vx:(Math.random()-0.5)*10, vy:(Math.random()-0.5)*10, 
-                life:1.0, c:c
-            });
-        }
-    }
-    spawnFloater(txt, x, y, c) {
-        this.floaters.push({txt, x, y, c, life:60});
-    }
-
+    // --- HELPERS ---
+    addParticle(x, y, type) {
+        this.particles.push(new Particle(x, y, type));
+    },
+    addFloater(text, x, y, color) {
+        this.floaters.push({ text, x, y, color, life: 60 });
+    },
     updateHUD() {
-        document.getElementById('scoreDisplay').innerText = "SCORE: " + this.score.toString().padStart(4,'0');
-        document.getElementById('levelDisplay').innerText = CONFIG.levels[this.levelIdx].title;
-    }
-
+        document.getElementById('scoreEl').innerText = "SCORE: " + this.score.toString().padStart(4, '0');
+        document.getElementById('levelEl').innerText = CONFIG.levels[this.levelIdx].title;
+    },
     showLevelUp() {
         const lvl = CONFIG.levels[this.levelIdx];
-        document.getElementById('levelDesc').innerText = lvl.desc;
-        document.getElementById('levelCode').innerText = lvl.code;
-        document.getElementById('levelScreen').style.display = 'flex';
-    }
-
+        document.getElementById('lvl-desc').innerText = lvl.desc;
+        document.getElementById('lvl-code').innerText = lvl.code;
+        document.getElementById('screen-level').style.display = 'flex';
+    },
     nextLevel() {
-        if(this.levelIdx + 1 < CONFIG.levels.length) {
+        if (this.levelIdx + 1 < CONFIG.levels.length) {
             this.startLevel(this.levelIdx + 1);
         } else {
-            alert("ALL LEVELS COMPLETE! CHAMPION STATUS ACHIEVED.");
-            location.reload();
+            alert("COMPLIMENTI! HAI COMPLETATO IL TRAINING ZALANDO OPS.");
+            this.state = 'MENU';
+            document.getElementById('screen-start').style.display = 'flex';
         }
-    }
+    },
+    restart() {
+        this.score = 0;
+        this.startLevel(0);
+        document.getElementById('screen-gameover').style.display = 'none';
+    },
 
-    loop() {
+    // --- GAME LOOP ---
+    loop(timestamp) {
         this.update();
         this.draw();
-        requestAnimationFrame(this.loop);
+        requestAnimationFrame(timestamp => this.loop(timestamp));
     }
-}
+};
 
-const game = new Game();
 </script>
 </body>
 </html>
