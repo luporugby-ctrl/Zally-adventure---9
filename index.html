@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zally's Prompt Hoops: Clear Edition</title>
+    <title>Zally's Hoops: 8-BIT OPS</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap');
+        /* --- RETRO FONTS --- */
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
         body {
-            background-color: #f0f0f0; /* Sfondo pagina chiaro */
-            color: #333;
-            font-family: 'Roboto', sans-serif;
+            background-color: #111;
+            color: #fff;
+            font-family: 'Press Start 2P', cursive;
             margin: 0;
             display: flex;
             justify-content: center;
@@ -20,284 +21,251 @@
             user-select: none;
         }
 
-        #game-wrapper {
+        /* --- ARCADE CABINET --- */
+        #cabinet {
             position: relative;
             width: 960px;
             height: 640px;
-            background: #fff;
-            border: 10px solid #ff6900; /* Zalando Orange */
-            border-radius: 12px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            background: #000;
+            border: 4px solid #ff6900; /* Zalando Neon */
+            box-shadow: 0 0 20px #ff6900, 0 0 40px rgba(255, 105, 0, 0.4);
+            border-radius: 4px;
             overflow: hidden;
         }
 
-        canvas { display: block; }
+        /* --- CRT SCANLINES --- */
+        .scanlines {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
 
-        /* UI HUD OVERLAY */
+        canvas { display: block; image-rendering: pixelated; }
+
+        /* --- UI OVERLAY --- */
         #ui-layer {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none;
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .hud-top {
             display: flex;
             justify-content: space-between;
-            padding: 20px 40px;
+            padding: 20px;
+            text-shadow: 2px 2px #000;
         }
 
-        .score-box {
-            background: #fff;
-            padding: 10px 20px;
-            border-radius: 8px;
-            border: 2px solid #eee;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            text-align: center;
-        }
+        .blink { animation: blinker 1s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
 
-        .score-label { font-size: 12px; color: #888; font-weight: bold; letter-spacing: 1px; }
-        .score-val { font-size: 32px; color: #ff6900; font-weight: 900; line-height: 1; }
-
-        /* MODALS */
-        .modal-overlay {
+        /* --- SCREENS (MENU / LEVEL UP) --- */
+        .screen {
             display: none;
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 255, 255, 0.9); /* Sfondo bianco semitrasparente */
-            z-index: 100;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 30;
             pointer-events: auto;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-        }
-
-        .modal-card {
-            background: #fff;
-            width: 600px;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
             text-align: center;
-            border: 1px solid #eee;
         }
 
-        .modal-title {
-            font-size: 48px;
-            font-weight: 900;
+        .title {
+            font-size: 40px;
             color: #ff6900;
-            margin: 0 0 10px 0;
-            text-transform: uppercase;
+            text-shadow: 4px 4px #fff;
+            margin-bottom: 20px;
+            line-height: 1.5;
         }
 
-        .modal-desc {
-            font-size: 18px;
-            color: #555;
-            line-height: 1.6;
-            margin-bottom: 30px;
-        }
-
-        .tutorial-box {
-            background: #f9f9f9;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: left;
-            margin-bottom: 30px;
-            border-left: 5px solid #ff6900;
-        }
-
-        .tutorial-step {
-            margin: 10px 0;
-            font-size: 16px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .key-badge {
-            background: #333;
-            color: #fff;
-            padding: 4px 10px;
-            border-radius: 6px;
+        .subtitle {
             font-size: 14px;
-            margin-right: 10px;
+            color: #4ade80; /* Green Terminal */
+            margin-bottom: 40px;
+            line-height: 1.8;
+            max-width: 700px;
         }
 
-        .btn-start {
+        .btn {
             background: #ff6900;
             color: #fff;
-            border: none;
-            padding: 15px 40px;
-            font-size: 20px;
-            font-weight: bold;
-            border-radius: 50px;
+            border: 4px solid #fff;
+            padding: 20px 40px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 16px;
             cursor: pointer;
-            transition: transform 0.1s, background 0.1s;
-            box-shadow: 0 5px 15px rgba(255, 105, 0, 0.3);
+            text-transform: uppercase;
+            box-shadow: 4px 4px 0px #fff;
         }
-        .btn-start:hover { transform: scale(1.05); background: #e65c00; }
+        .btn:hover { background: #ff4500; transform: translate(2px, 2px); box-shadow: 2px 2px 0px #fff; }
 
-        /* Level Up Card Style */
-        .code-block {
-            background: #2d2d2d;
-            color: #4ade80;
-            font-family: monospace;
+        .code-box {
+            background: #222;
+            border: 2px solid #ff6900;
+            color: #0f0;
             padding: 20px;
-            border-radius: 8px;
+            font-size: 10px;
             text-align: left;
-            margin: 20px 0;
-            font-size: 14px;
-            white-space: pre-wrap;
+            margin: 20px;
+            width: 70%;
+            line-height: 1.6;
         }
 
     </style>
 </head>
 <body>
 
-<div id="game-wrapper">
+<div id="cabinet">
+    <div class="scanlines"></div>
     <canvas id="gameCanvas" width="960" height="640"></canvas>
 
     <div id="ui-layer">
         <div class="hud-top">
-            <div class="score-box">
-                <div class="score-label">SCORE</div>
-                <div class="score-val" id="scoreEl">0</div>
-            </div>
-            <div class="score-box">
-                <div class="score-label">LEVEL</div>
-                <div class="score-val" id="levelEl" style="color:#333">1/4</div>
-            </div>
+            <div>SCORE <span style="color:#ff6900" id="scoreEl">0000</span></div>
+            <div id="levelEl">LEVEL 1</div>
+        </div>
+        <div style="padding:20px; text-align:center; font-size:10px; color:#aaa;">
+            PRESS <span style="color:#fff">[SPACE]</span> TO PLAY
         </div>
     </div>
 
-    <div id="startModal" class="modal-overlay" style="display: flex;">
-        <div class="modal-card">
-            <h1 class="modal-title">ZALLY'S HOOPS</h1>
-            <p class="modal-desc">Impara a fare centro con i tuoi Prompt.<br>Niente trucchi, solo tecnica.</p>
-            
-            <div class="tutorial-box">
-                <div class="tutorial-step"><span class="key-badge">SPACE</span> 1. AVVIA MIRA</div>
-                <div class="tutorial-step"><span class="key-badge">SPACE</span> 2. BLOCCA & CARICA</div>
-                <div class="tutorial-step"><span class="key-badge">SPACE</span> 3. TIRA!</div>
-            </div>
-
-            <button class="btn-start" onclick="game.startLevel(0)">SCENDI IN CAMPO</button>
+    <div id="startScreen" class="screen" style="display: flex;">
+        <div class="title">ZALLY'S HOOPS<br>8-BIT OPS</div>
+        <div class="subtitle">
+            MISSION: MASTER THE ART OF PROMPTING.<br><br>
+            CONTROLS (3-TAP SYSTEM):<br>
+            1. SPACE: START AIM<br>
+            2. SPACE: LOCK & POWER<br>
+            3. SPACE: FIRE!
         </div>
+        <button class="btn blink" onclick="game.startLevel(0)">INSERT COIN</button>
     </div>
 
-    <div id="levelModal" class="modal-overlay">
-        <div class="modal-card">
-            <h1 class="modal-title">SWISH! 🏀</h1>
-            <h3 style="color:#333; margin-top:0;" id="lvl-tech">TECNICA SBLOCCATA</h3>
-            
-            <p class="modal-desc" id="lvl-desc">Descrizione...</p>
-            <div class="code-block" id="lvl-code">Esempio...</div>
-
-            <button class="btn-start" onclick="game.nextLevel()">PROSSIMO LIVELLO</button>
-        </div>
+    <div id="levelScreen" class="screen">
+        <div class="title" style="color:#4ade80">LEVEL CLEARED!</div>
+        <div class="subtitle" id="lvlDesc">...</div>
+        <div class="code-box" id="lvlCode">...</div>
+        <button class="btn" onclick="game.nextLevel()">NEXT LEVEL >></button>
     </div>
+
 </div>
 
 <script>
 /**
- * ZALLY'S HOOPS - CLEAN EDITION
- * Focus: Visibility, Reliable Input, Clear Learning
+ * ZALLY'S HOOPS - ARCADE EDITION
+ * Style: 8-Bit, Neon, CRT
  */
 
-// --- CONFIG ---
 const COLORS = {
-    sky: '#e0f7fa',      // Azzurro chiaro giorno
-    floor: '#e5e5e5',    // Cemento chiaro
-    floorLines: '#ff6900',
-    hoop: '#ff6900',
-    ball: '#ff6900',
-    text: '#333333'
+    orange: '#ff6900',
+    white: '#ffffff',
+    black: '#000000',
+    skyTop: '#111',
+    skyBot: '#223',
+    green: '#4ade80'
 };
 
-// --- GAME ENGINE ---
 class Game {
     constructor() {
         this.canvas = document.getElementById('gameCanvas');
         this.ctx = this.canvas.getContext('2d');
-        this.width = 960;
-        this.height = 640;
-        
-        // Asset Image (con fallback)
+        // Disable smoothing for pixel art look
+        this.ctx.imageSmoothingEnabled = false; 
+
+        // Load Asset (Fallback implemented)
         this.zallyImg = new Image();
         this.zallyImg.src = 'zally-basket.png';
         this.imgLoaded = false;
         this.zallyImg.onload = () => { this.imgLoaded = true; };
 
-        // Game State
-        this.state = 'MENU'; // MENU, IDLE, AIM, POWER, FLIGHT, REPLAY
+        // State
+        this.state = 'MENU';
         this.levelIdx = 0;
         this.score = 0;
         this.shotsMade = 0;
 
-        // Physics Entities
-        this.ball = { x:0, y:0, vx:0, vy:0, r:16, active:false };
-        this.hoop = { x:800, y:280 };
+        // Entities
+        this.ball = { x:0, y:0, vx:0, vy:0, r:12, active:false };
+        this.hoop = { x:800, y:250 };
         this.player = { x:100, y:500 };
 
-        // Input Variables
+        // Input
         this.angle = 45;
-        this.angleDir = 0.8; 
+        this.angleDir = 1;
         this.power = 0;
-        this.powerDir = 1.5;
+        this.powerDir = 2;
 
-        // Environment
-        this.wind = 0;
+        // FX
         this.particles = [];
+        this.floaters = [];
+        this.shake = 0;
 
-        // Levels Data
+        // Levels
         this.levels = [
             {
-                name: "FEW-SHOT PROMPTING",
-                req: 1, // Basta 1 canestro per demo
-                dist: 500,
+                name: "LVL 1: FEW-SHOT",
+                req: 1, 
+                dist: 500, 
                 wind: 0,
-                desc: "Perché tirare alla cieca? Fornisci a Gemini 2-3 esempi (Input > Output) per fargli capire lo stile esatto.",
-                code: "Input: [Mail Fornitore]\nOutput: [Risposta]\n---\nInput: [Mail 2]\nOutput: [Risposta 2]\n---\nOra rispondi a questa mail seguendo lo stile."
+                desc: "GEMINI NEEDS EXAMPLES! DON'T JUST ASK. SHOW IT HOW IT'S DONE.",
+                code: "PROMPT:\n'ACT AS AN OPS EXPERT.\nEXAMPLE 1: [DATA] -> [REPORT]\nEXAMPLE 2: [DATA] -> [REPORT]\nNOW DO THIS: [NEW DATA]'"
             },
             {
-                name: "CHAIN OF THOUGHT",
-                req: 1,
-                dist: 650,
+                name: "LVL 2: CHAIN OF THOUGHT",
+                req: 1, 
+                dist: 650, 
                 wind: 0,
-                desc: "Per i tiri difficili, serve pianificazione. Usa la keyword 'Think Step-by-Step' per evitare errori di logica.",
-                code: "Analizza i dati di vendita.\nThink Step-by-Step:\n1. Calcola il totale per brand\n2. Confronta con l'anno scorso\n3. Solo alla fine scrivi il report."
+                desc: "COMPLEX TASK? FORCE LOGIC! USE THE MAGIC WORDS: 'THINK STEP-BY-STEP'.",
+                code: "PROMPT:\n'ANALYZE THIS INVOICE.\n1. EXTRACT TOTALS\n2. COMPARE WITH PO\n3. FLAG DISCREPANCIES\nTHINK STEP-BY-STEP.'"
             },
             {
-                name: "DELIMITERS",
-                req: 2,
-                dist: 600,
-                wind: 1.5, // Vento forte
-                desc: "Proteggi i tuoi dati dal caos! Usa i delimitatori ### per separare le istruzioni dal testo sporco.",
-                code: "Estrai la data di consegna da questo testo sporco:\n###\n[Incolla qui la mail confusa]\n###"
+                name: "LVL 3: DELIMITERS",
+                req: 2, 
+                dist: 600, 
+                wind: 1.5,
+                desc: "DIRTY DATA DETECTED! USE ### TO SHIELD YOUR INSTRUCTIONS.",
+                code: "PROMPT:\n'ANALYZE ONLY TEXT BETWEEN ###\n###\n[MESSY EMAIL THREAD]\n###\nEXTRACT DELIVERY DATES.'"
             },
             {
-                name: "FORMAT MASTER",
-                req: 2,
-                dist: 700,
+                name: "LVL 4: KEYWORDS",
+                req: 2, 
+                dist: 700, 
                 wind: 0.5,
-                desc: "Parla come un Pro. Usa Key Words specifiche per ottenere output pronti all'uso.",
-                code: "PROMPT:\nAnalizza i dati e genera:\n1. Una [TABLE] di riepilogo\n2. Un layout per [INFOGRAPHIC]\n3. Un [PYTHON SCRIPT] per i grafici."
+                desc: "SPEAK THE CODE! USE [FORMATS] TO GET PERFECT OUTPUTS.",
+                code: "PROMPT:\n'GENERATE A [TABLE] OF SKUS.\nCREATE A [PYTHON SCRIPT] FOR ANALYSIS.\nWRITE A SUMMARY IN [BULLET POINTS].'"
             }
         ];
 
-        // Bind Input
+        // Global Key Listener
         window.addEventListener('keydown', (e) => {
-            if(e.code === 'Space' && !e.repeat) this.handleInput();
+            if(e.code === 'Space') {
+                e.preventDefault(); // Stop scrolling
+                if(this.state === 'MENU') this.startLevel(0);
+                else if(this.state === 'LEVEL_UP') this.nextLevel();
+                else this.handleInput();
+            }
         });
-        // Mouse/Touch support for presentations
-        this.canvas.addEventListener('mousedown', () => this.handleInput());
 
-        // Start Loop
+        // Loop
         this.loop = this.loop.bind(this);
         requestAnimationFrame(this.loop);
     }
 
     startLevel(idx) {
-        document.getElementById('startModal').style.display = 'none';
-        document.getElementById('levelModal').style.display = 'none';
+        document.getElementById('startScreen').style.display = 'none';
+        document.getElementById('levelScreen').style.display = 'none';
+        
         this.levelIdx = idx;
         this.shotsMade = 0;
         this.updateHUD();
@@ -305,109 +273,116 @@ class Game {
     }
 
     resetShot() {
-        this.state = 'IDLE'; // Waiting for start
+        this.state = 'IDLE'; 
         this.ball.active = false;
         this.angle = 45;
         this.power = 0;
         
         const lvl = this.levels[this.levelIdx];
         this.player.x = this.hoop.x - lvl.dist;
-        
-        // Reset ball to player hand
         this.ball.x = this.player.x + 40;
-        this.ball.y = this.player.y - 30;
+        this.ball.y = this.player.y - 10;
 
-        // Set Wind
         this.wind = lvl.wind ? (Math.random() * lvl.wind - (lvl.wind/2)) : 0;
     }
 
     handleInput() {
-        if (this.state === 'IDLE') {
-            this.state = 'AIM'; // Start moving arrow
-        } else if (this.state === 'AIM') {
-            this.state = 'POWER'; // Lock angle, start filling bar
-        } else if (this.state === 'POWER') {
-            this.shoot(); // Lock power, fire
-        } else if (this.state === 'REPLAY') {
-            this.resetShot();
-        }
+        if(this.state === 'IDLE') this.state = 'AIM';
+        else if(this.state === 'AIM') this.state = 'POWER';
+        else if(this.state === 'POWER') this.shoot();
+        else if(this.state === 'REPLAY') this.resetShot();
     }
 
     shoot() {
         this.state = 'FLIGHT';
         this.ball.active = true;
         
-        // Physics
         const rad = (this.angle * Math.PI) / 180;
-        const velocity = (this.power / 100) * 20 + 10; // Speed range
+        const speed = (this.power / 100) * 20 + 12; // High Speed Arcade Feel
         
-        this.ball.vx = Math.cos(rad) * velocity;
-        this.ball.vy = -Math.sin(rad) * velocity;
+        this.ball.vx = Math.cos(rad) * speed;
+        this.ball.vy = -Math.sin(rad) * speed;
     }
 
     update() {
-        // --- INPUT ANIMATION ---
-        if (this.state === 'AIM') {
-            this.angle += this.angleDir;
-            if (this.angle > 80 || this.angle < 20) this.angleDir *= -1;
+        if(this.state === 'AIM') {
+            this.angle += this.angleDir * 1.5;
+            if(this.angle > 80 || this.angle < 20) this.angleDir *= -1;
         }
-        if (this.state === 'POWER') {
-            this.power += this.powerDir;
-            if (this.power > 100 || this.power < 5) this.powerDir *= -1;
+        if(this.state === 'POWER') {
+            this.power += this.powerDir * 2;
+            if(this.power > 100 || this.power < 10) this.powerDir *= -1;
         }
 
-        // --- BALL PHYSICS ---
-        if (this.state === 'FLIGHT' && this.ball.active) {
-            this.ball.vy += 0.4; // Gravity
-            this.ball.vx -= 0.01; // Drag
+        if(this.state === 'FLIGHT' && this.ball.active) {
+            this.ball.vy += 0.5; // Gravity
             this.ball.x += this.ball.vx + this.wind;
             this.ball.y += this.ball.vy;
 
             // Floor
-            if (this.ball.y > 550) {
-                this.ball.y = 550;
+            if(this.ball.y > 560) {
+                this.ball.y = 560;
                 this.ball.vy *= -0.6;
                 this.ball.vx *= 0.8;
-                if(Math.abs(this.ball.vy) < 1) this.state = 'REPLAY'; // Fail
+                if(Math.abs(this.ball.vy) < 1) this.fail("MISS");
             }
 
-            // Magnetic Hoop Logic (Super Easy Mode)
+            // Magnetic Hoop (Arcade Logic)
             const dx = this.ball.x - this.hoop.x;
             const dy = this.ball.y - this.hoop.y;
-            // Big hitbox: 50px radius
-            if (dx*dx + dy*dy < 2500 && this.ball.vy > 0) {
+            if(dx*dx + dy*dy < 2000 && this.ball.vy > 0) {
                 this.success();
             }
 
-            // Miss
-            if (this.ball.x > this.width + 100) this.state = 'REPLAY';
+            if(this.ball.x > 960) this.fail("AIRBALL");
         }
 
-        // Particles
+        // FX
         this.particles.forEach((p,i) => {
-            p.y += p.vy;
-            p.life -= 0.02;
-            if(p.life <= 0) this.particles.splice(i,1);
+            p.x += p.vx; p.y += p.vy; p.life -= 0.05;
+            if(p.life<=0) this.particles.splice(i,1);
+        });
+        
+        this.floaters.forEach((f,i) => {
+            f.y -= 2; f.life -= 1;
+            if(f.life<=0) this.floaters.splice(i,1);
         });
 
-        // Fail Reset Timer
-        if(this.state === 'REPLAY') {
-             // Just a simple visual delay, logic handled in draw
-             setTimeout(() => { if(this.state === 'REPLAY') this.resetShot() }, 1000);
-        }
+        if(this.shake > 0) this.shake *= 0.8;
+        if(this.shake < 0.5) this.shake = 0;
+    }
+
+    fail(reason) {
+        if(this.state === 'REPLAY') return;
+        this.state = 'REPLAY';
+        this.floaters.push({txt: reason, x:this.ball.x, y:this.ball.y, life:30, color:'#f00'});
+        setTimeout(() => { if(this.state==='REPLAY') this.resetShot() }, 1000);
     }
 
     success() {
         if(this.state === 'SUCCESS') return;
         this.state = 'SUCCESS';
-        this.score += 100;
+        this.score += 500;
         this.shotsMade++;
-        this.spawnConfetti();
+        this.shake = 10;
+        
+        // Pixel Explosion
+        for(let i=0; i<20; i++) {
+            this.particles.push({
+                x: this.hoop.x, y:this.hoop.y,
+                vx: (Math.random()-0.5)*10, vy: (Math.random()-0.5)*10,
+                color: Math.random()>0.5 ? COLORS.orange : '#fff',
+                life: 1.0
+            });
+        }
+        this.floaters.push({txt: "SWISH!", x:this.hoop.x, y:this.hoop.y-50, life:60, color: COLORS.green});
+        
         this.updateHUD();
 
         setTimeout(() => {
             const lvl = this.levels[this.levelIdx];
             if(this.shotsMade >= lvl.req) {
+                this.state = 'LEVEL_UP';
                 this.showLevelUp();
             } else {
                 this.resetShot();
@@ -415,220 +390,130 @@ class Game {
         }, 1500);
     }
 
-    spawnConfetti() {
-        for(let i=0; i<30; i++) {
-            this.particles.push({
-                x: this.hoop.x,
-                y: this.hoop.y,
-                vy: (Math.random() - 0.5) * 5,
-                color: Math.random()>0.5 ? '#ff6900' : '#444',
-                life: 1.0
-            });
-        }
-    }
-
     showLevelUp() {
         const lvl = this.levels[this.levelIdx];
-        document.getElementById('lvl-tech').innerText = lvl.name;
-        document.getElementById('lvl-desc').innerText = lvl.desc;
-        document.getElementById('lvl-code').innerText = lvl.code;
-        document.getElementById('levelModal').style.display = 'flex';
-    }
-
-    updateHUD() {
-        document.getElementById('scoreEl').innerText = this.score;
-        document.getElementById('levelEl').innerText = (this.levelIdx + 1) + "/4";
+        document.getElementById('lvlDesc').innerText = lvl.desc;
+        document.getElementById('lvlCode').innerText = lvl.code;
+        document.getElementById('levelScreen').style.display = 'flex';
     }
 
     nextLevel() {
         if(this.levelIdx + 1 < this.levels.length) {
             this.startLevel(this.levelIdx + 1);
         } else {
-            alert("TRAINING COMPLETATO! Ottimo lavoro.");
+            alert("ALL LEVELS CLEARED! SCORE: " + this.score);
             location.reload();
         }
     }
 
+    updateHUD() {
+        document.getElementById('scoreEl').innerText = this.score.toString().padStart(4,'0');
+        document.getElementById('levelEl').innerText = this.levels[this.levelIdx].name;
+    }
+
     draw() {
-        // Clear
-        this.ctx.clearRect(0, 0, this.width, this.height);
+        this.ctx.save();
+        
+        // Shake
+        if(this.shake>0) {
+            this.ctx.translate(Math.random()*this.shake - this.shake/2, Math.random()*this.shake - this.shake/2);
+        }
 
-        // 1. BACKGROUND (Bright Day)
-        const grad = this.ctx.createLinearGradient(0,0,0,600);
-        grad.addColorStop(0, COLORS.sky);
-        grad.addColorStop(1, '#fff');
-        this.ctx.fillStyle = grad;
-        this.ctx.fillRect(0,0,this.width, this.height);
+        this.ctx.clearRect(0,0,960,640);
 
-        // Skyline Semplice (Grigio chiaro)
-        this.ctx.fillStyle = '#e0e0e0';
-        for(let i=0; i<10; i++) {
-            this.ctx.fillRect(i*100, 600 - (50 + Math.sin(i)*40), 80, 200);
+        // 1. SKYLINE (8-BIT)
+        this.ctx.fillStyle = '#050510';
+        this.ctx.fillRect(0,0,960,640);
+        
+        // Moon
+        this.ctx.fillStyle = '#fff';
+        this.ctx.fillRect(800, 50, 40, 40);
+
+        // Buildings (Rectangles)
+        this.ctx.fillStyle = '#1a1a2e';
+        for(let i=0; i<15; i++) {
+            let h = 100 + Math.sin(i*99)*50;
+            this.ctx.fillRect(i*70, 600-h, 60, h);
+            // Windows
+            this.ctx.fillStyle = Math.random()>0.9 ? COLORS.orange : '#111';
+            this.ctx.fillRect(i*70+10, 600-h+10, 10, 10);
+            this.ctx.fillStyle = '#1a1a2e';
         }
 
         // 2. FLOOR
-        this.ctx.fillStyle = COLORS.floor;
-        this.ctx.fillRect(0, 566, this.width, 74);
-        this.ctx.strokeStyle = '#ccc';
+        this.ctx.fillStyle = '#222';
+        this.ctx.fillRect(0, 560, 960, 80);
+        this.ctx.strokeStyle = COLORS.orange;
         this.ctx.beginPath();
-        this.ctx.moveTo(0, 566); this.ctx.lineTo(this.width, 566);
+        this.ctx.moveTo(0,560); this.ctx.lineTo(960,560);
         this.ctx.stroke();
 
-        // 3. CROWD (Su gradinate)
-        this.ctx.fillStyle = '#666';
-        this.ctx.fillRect(0, 500, this.width, 66); // Bleachers
-        // People Blobs
-        for(let i=0; i<15; i++) {
-            this.ctx.fillStyle = Math.random()>0.5 ? COLORS.hoop : '#333';
-            this.ctx.beginPath();
-            this.ctx.arc(50 + i*60, 490, 8, 0, Math.PI*2);
-            this.ctx.fill();
-            this.ctx.fillRect(42 + i*60, 500, 16, 20); // Body
-        }
-        // Banner
-        this.ctx.fillStyle = '#fff';
-        this.ctx.fillRect(200, 450, 200, 40);
-        this.ctx.strokeStyle = '#333';
-        this.ctx.strokeRect(200, 450, 200, 40);
-        this.ctx.fillStyle = '#000';
-        this.ctx.font = 'bold 14px Roboto';
-        this.ctx.fillText("PROMPT LIKE A PRO", 230, 475);
+        // 3. HOOP (Pixel Art Style)
+        const hx = this.hoop.x; const hy = this.hoop.y;
+        this.ctx.fillStyle = '#444'; this.ctx.fillRect(hx+40, hy, 10, 560-hy); // Pole
+        this.ctx.fillStyle = '#fff'; this.ctx.fillRect(hx+30, hy-80, 10, 90); // Backboard
+        this.ctx.fillStyle = COLORS.orange; this.ctx.fillRect(hx+32, hy-60, 6, 40); // Target
+        this.ctx.strokeStyle = COLORS.orange; this.ctx.lineWidth = 4;
+        this.ctx.beginPath(); this.ctx.moveTo(hx-20, hy); this.ctx.lineTo(hx+20, hy); this.ctx.stroke(); // Rim
 
-        // 4. HOOP
-        this.drawHoop();
-
-        // 5. PLAYER (Draw Zally or Fallback Stickman)
-        this.drawPlayer();
-
-        // 6. BALL
-        if(this.ball.active) {
-            this.ctx.fillStyle = COLORS.ball;
-            this.ctx.beginPath();
-            this.ctx.arc(this.ball.x, this.ball.y, this.ball.r, 0, Math.PI*2);
-            this.ctx.fill();
-            this.ctx.strokeStyle = '#fff';
-            this.ctx.lineWidth = 2;
-            this.ctx.stroke();
-        }
-
-        // 7. UI CONTROLS (BIG & VISIBLE)
-        if(this.state === 'IDLE' || this.state === 'AIM' || this.state === 'POWER') {
-            this.drawControls();
-        }
-
-        // 8. PARTICLES
-        this.particles.forEach(p => {
-            this.ctx.fillStyle = p.color;
-            this.ctx.globalAlpha = p.life;
-            this.ctx.fillRect(p.x, p.y, 6, 6);
-            this.ctx.globalAlpha = 1.0;
-        });
-    }
-
-    drawHoop() {
-        const x = this.hoop.x;
-        const y = this.hoop.y;
-        
-        // Pole
-        this.ctx.fillStyle = '#555';
-        this.ctx.fillRect(x+40, y, 10, 566-y);
-        
-        // Backboard (White w/ Orange box)
-        this.ctx.fillStyle = '#fff';
-        this.ctx.fillRect(x+30, y-80, 10, 90);
-        this.ctx.strokeStyle = '#333';
-        this.ctx.strokeRect(x+30, y-80, 10, 90);
-        this.ctx.fillStyle = COLORS.hoop;
-        this.ctx.fillRect(x+32, y-60, 6, 40);
-
-        // Rim
-        this.ctx.strokeStyle = COLORS.hoop;
-        this.ctx.lineWidth = 4;
-        this.ctx.beginPath();
-        this.ctx.moveTo(x-20, y); this.ctx.lineTo(x+20, y);
-        this.ctx.stroke();
-
-        // Net
-        this.ctx.strokeStyle = '#999';
-        this.ctx.lineWidth = 1;
-        this.ctx.beginPath();
-        this.ctx.moveTo(x-20, y); this.ctx.lineTo(x-5, y+30);
-        this.ctx.lineTo(x+5, y+30); this.ctx.lineTo(x+20, y);
-        this.ctx.stroke();
-    }
-
-    drawPlayer() {
-        const x = this.player.x;
-        const y = this.player.y;
-
+        // 4. PLAYER (ZALLY 8-BIT)
         if(this.imgLoaded) {
             this.ctx.save();
-            this.ctx.translate(x+40, y+40);
+            this.ctx.translate(this.player.x+40, this.player.y+40);
             this.ctx.scale(-1, 1);
             this.ctx.drawImage(this.zallyImg, -40, -50, 80, 100);
             this.ctx.restore();
         } else {
-            // PIXEL ART ZALLY FALLBACK
-            this.ctx.fillStyle = '#333'; // Legs
-            this.ctx.fillRect(x+10, y+50, 10, 30);
-            this.ctx.fillRect(x+30, y+50, 10, 30);
-            this.ctx.fillStyle = COLORS.hoop; // Shirt
-            this.ctx.fillRect(x+5, y+10, 40, 40);
-            this.ctx.fillStyle = '#ffccaa'; // Head
-            this.ctx.fillRect(x+10, y-20, 30, 30);
-            // Cap
-            this.ctx.fillStyle = '#333';
-            this.ctx.fillRect(x+10, y-25, 30, 8);
-            this.ctx.fillRect(x+30, y-25, 15, 8); // Visor
+            const px = this.player.x; const py = this.player.y;
+            this.ctx.fillStyle = COLORS.orange; this.ctx.fillRect(px, py, 40, 60); // Body
+            this.ctx.fillStyle = '#ffccaa'; this.ctx.fillRect(px+5, py-20, 30, 20); // Head
+            this.ctx.fillStyle = '#000'; this.ctx.fillRect(px, py-25, 40, 5); // Hat
         }
+
+        // 5. BALL (Pixel Circle)
+        if(this.ball.active) {
+            this.ctx.fillStyle = COLORS.orange;
+            this.ctx.beginPath(); this.ctx.arc(this.ball.x, this.ball.y, 12, 0, Math.PI*2); this.ctx.fill();
+        }
+
+        // 6. UI (Aim Arrow & Power)
+        if(this.state === 'AIM' || this.state === 'POWER') {
+            const ax = this.player.x + 40; const ay = this.player.y - 20;
+            const rad = -this.angle * Math.PI / 180;
+            const len = 80;
+            
+            // Dotted Line
+            this.ctx.strokeStyle = '#fff';
+            this.ctx.lineWidth = 4;
+            this.ctx.beginPath(); this.ctx.moveTo(ax,ay); 
+            this.ctx.lineTo(ax+Math.cos(rad)*len, ay+Math.sin(rad)*len);
+            this.ctx.stroke();
+
+            // Power Bar
+            if(this.state === 'POWER') {
+                this.ctx.fillStyle = '#fff'; this.ctx.fillRect(ax-50, ay-80, 100, 20);
+                this.ctx.fillStyle = COLORS.orange; this.ctx.fillRect(ax-50, ay-80, this.power, 20);
+            }
+        }
+
+        // 7. PARTICLES & TEXT
+        this.particles.forEach(p => {
+            this.ctx.fillStyle = p.color;
+            this.ctx.fillRect(p.x, p.y, 8, 8); // Big pixels
+        });
+
+        this.floaters.forEach(f => {
+            this.ctx.fillStyle = f.color;
+            this.ctx.font = '20px "Press Start 2P"';
+            this.ctx.fillText(f.txt, f.x, f.y);
+        });
+
+        this.ctx.restore();
     }
 
-    drawControls() {
-        const cx = this.player.x + 50;
-        const cy = this.player.y - 40;
-        const radius = 80;
-
-        // Angle Arc
-        this.ctx.beginPath();
-        this.ctx.strokeStyle = '#ddd';
-        this.ctx.lineWidth = 15;
-        this.ctx.arc(cx, cy, radius, -Math.PI/2, 0);
-        this.ctx.stroke();
-
-        // Current Aim
-        const rad = -this.angle * Math.PI / 180;
-        this.ctx.strokeStyle = '#333';
-        this.ctx.lineWidth = 4;
-        this.ctx.beginPath();
-        this.ctx.moveTo(cx, cy);
-        this.ctx.lineTo(cx + Math.cos(rad)*radius, cy + Math.sin(rad)*radius);
-        this.ctx.stroke();
-
-        // Power Bar Background (Verticale, più visibile)
-        const barX = this.player.x - 30;
-        const barY = this.player.y - 80;
-        this.ctx.fillStyle = '#eee';
-        this.ctx.fillRect(barX, barY, 20, 100);
-        this.ctx.strokeStyle = '#333';
-        this.ctx.strokeRect(barX, barY, 20, 100);
-
-        // Power Fill
-        const fillH = this.power;
-        this.ctx.fillStyle = this.power > 90 ? '#ff0000' : (this.power > 50 ? COLORS.hoop : '#4ade80');
-        this.ctx.fillRect(barX, barY + (100-fillH), 20, fillH);
-
-        // Help Text
-        this.ctx.fillStyle = '#000';
-        this.ctx.font = 'bold 16px Roboto';
-        let txt = "1. TAP SPACE";
-        if(this.state === 'AIM') txt = "2. TAP TO LOCK";
-        if(this.state === 'POWER') txt = "3. TAP TO FIRE";
-        this.ctx.fillText(txt, cx - 40, cy - 100);
+    loop() {
+        this.update();
+        this.draw();
+        requestAnimationFrame(this.loop);
     }
 }
-
-const game = new Game();
-
-</script>
-</body>
-</html>
