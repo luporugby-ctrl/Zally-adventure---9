@@ -1,519 +1,723 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zally's Hoops: 8-BIT OPS</title>
+    <title>ZALLY'S HOOPS: ARCADE ENGINE</title>
     <style>
-        /* --- RETRO FONTS --- */
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
+        :root {
+            --zalando-orange: #ff6900;
+            --zalando-black: #1a1a1a;
+            --neon-green: #00ff00;
+            --crt-scanline: rgba(18, 16, 16, 0.1);
+        }
+
         body {
-            background-color: #111;
-            color: #fff;
-            font-family: 'Press Start 2P', cursive;
+            background-color: #050505;
             margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             overflow: hidden;
+            font-family: 'Press Start 2P', cursive;
+            color: white;
             user-select: none;
         }
 
-        /* --- ARCADE CABINET --- */
-        #cabinet {
+        #arcade-machine {
             position: relative;
-            width: 960px;
-            height: 640px;
+            width: 1024px;
+            height: 768px;
             background: #000;
-            border: 4px solid #ff6900; /* Zalando Neon */
-            box-shadow: 0 0 20px #ff6900, 0 0 40px rgba(255, 105, 0, 0.4);
-            border-radius: 4px;
-            overflow: hidden;
+            border: 10px solid #222;
+            border-bottom-width: 40px;
+            border-radius: 20px;
+            box-shadow: 
+                0 0 0 5px var(--zalando-orange),
+                0 0 80px rgba(255, 105, 0, 0.4);
         }
 
-        /* --- CRT SCANLINES --- */
-        .scanlines {
+        /* CRT EFFECT OVERLAY */
+        #screen-overlay {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            background-size: 100% 2px, 3px 100%;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                linear-gradient(var(--crt-scanline) 50%, rgba(0,0,0,0.2) 50%),
+                linear-gradient(90deg, rgba(255,0,0,0.06), rgba(0,255,0,0.02), rgba(0,0,255,0.06));
+            background-size: 100% 3px, 3px 100%;
             pointer-events: none;
-            z-index: 10;
+            z-index: 100;
+            border-radius: 10px;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.7);
         }
 
-        canvas { display: block; image-rendering: pixelated; }
+        canvas { 
+            display: block; 
+            border-radius: 10px;
+            image-rendering: pixelated; /* Forces retro look */
+        }
 
-        /* --- UI OVERLAY --- */
+        /* UI OVERLAY */
         #ui-layer {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 50;
             pointer-events: none;
-            z-index: 20;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
         }
 
-        .hud-top {
+        .hud-panel {
             display: flex;
             justify-content: space-between;
-            padding: 20px;
-            text-shadow: 2px 2px #000;
+            padding: 30px;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 0 #000;
         }
 
-        .blink { animation: blinker 1s linear infinite; }
-        @keyframes blinker { 50% { opacity: 0; } }
-
-        /* --- SCREENS (MENU / LEVEL UP) --- */
-        .screen {
-            display: none;
+        /* INTERACTIVE SCREENS */
+        .screen-modal {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 30;
-            pointer-events: auto;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            background: rgba(0,0,0,0.95);
+            border: 4px solid var(--zalando-orange);
+            padding: 40px;
             text-align: center;
+            display: none; /* Toggled by JS */
+            pointer-events: auto;
+            z-index: 200;
+            box-shadow: 10px 10px 0 #333;
         }
 
-        .title {
-            font-size: 40px;
-            color: #ff6900;
-            text-shadow: 4px 4px #fff;
-            margin-bottom: 20px;
-            line-height: 1.5;
+        h1 { color: var(--zalando-orange); font-size: 40px; margin-bottom: 20px; line-height: 1.5; }
+        p { font-size: 12px; line-height: 2; color: #ccc; margin-bottom: 30px; }
+        
+        .code-display {
+            background: #111;
+            border-left: 5px solid var(--neon-green);
+            color: var(--neon-green);
+            font-family: monospace;
+            padding: 20px;
+            text-align: left;
+            margin: 20px 0;
+            white-space: pre-wrap;
+            font-size: 12px;
         }
 
-        .subtitle {
-            font-size: 14px;
-            color: #4ade80; /* Green Terminal */
-            margin-bottom: 40px;
-            line-height: 1.8;
-            max-width: 700px;
-        }
-
-        .btn {
-            background: #ff6900;
-            color: #fff;
-            border: 4px solid #fff;
+        button.start-btn {
+            background: var(--zalando-orange);
+            color: white;
+            border: none;
             padding: 20px 40px;
             font-family: 'Press Start 2P', cursive;
-            font-size: 16px;
+            font-size: 20px;
             cursor: pointer;
             text-transform: uppercase;
-            box-shadow: 4px 4px 0px #fff;
+            animation: pulse 1.5s infinite;
         }
-        .btn:hover { background: #ff4500; transform: translate(2px, 2px); box-shadow: 2px 2px 0px #fff; }
+        
+        button.start-btn:hover { background: #ff8c00; transform: scale(1.05); }
 
-        .code-box {
-            background: #222;
-            border: 2px solid #ff6900;
-            color: #0f0;
-            padding: 20px;
-            font-size: 10px;
-            text-align: left;
-            margin: 20px;
-            width: 70%;
-            line-height: 1.6;
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 105, 0, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(255, 105, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 105, 0, 0); }
         }
 
     </style>
 </head>
 <body>
 
-<div id="cabinet">
-    <div class="scanlines"></div>
-    <canvas id="gameCanvas" width="960" height="640"></canvas>
-
+<div id="arcade-machine">
+    <div id="screen-overlay"></div>
+    <canvas id="gameCanvas" width="1024" height="768"></canvas>
+    
     <div id="ui-layer">
-        <div class="hud-top">
-            <div>SCORE <span style="color:#ff6900" id="scoreEl">0000</span></div>
-            <div id="levelEl">LEVEL 1</div>
-        </div>
-        <div style="padding:20px; text-align:center; font-size:10px; color:#aaa;">
-            PRESS <span style="color:#fff">[SPACE]</span> TO PLAY
+        <div class="hud-panel">
+            <div id="score-hud">SCORE: 0000</div>
+            <div id="level-hud">WARM UP</div>
         </div>
     </div>
 
-    <div id="startScreen" class="screen" style="display: flex;">
-        <div class="title">ZALLY'S HOOPS<br>8-BIT OPS</div>
-        <div class="subtitle">
-            MISSION: MASTER THE ART OF PROMPTING.<br><br>
-            CONTROLS (3-TAP SYSTEM):<br>
-            1. SPACE: START AIM<br>
-            2. SPACE: LOCK & POWER<br>
-            3. SPACE: FIRE!
-        </div>
-        <button class="btn blink" onclick="game.startLevel(0)">INSERT COIN</button>
+    <div id="screen-start" class="screen-modal" style="display: block;">
+        <h1>ZALLY'S HOOPS<br>ENGINE V.1.0</h1>
+        <p>
+            OPERATIONS TRAINING SIMULATION<br>
+            INITIALIZING AUDIO SYNTH... OK<br>
+            INITIALIZING PHYSICS... OK<br><br>
+            CONTROLS: [SPACEBAR] or [CLICK]<br>
+            1. TAP to AIM<br>
+            2. TAP to POWER<br>
+            3. TAP to SHOOT
+        </p>
+        <button class="start-btn" onclick="GameEngine.init()">INSERT COIN</button>
     </div>
 
-    <div id="levelScreen" class="screen">
-        <div class="title" style="color:#4ade80">LEVEL CLEARED!</div>
-        <div class="subtitle" id="lvlDesc">...</div>
-        <div class="code-box" id="lvlCode">...</div>
-        <button class="btn" onclick="game.nextLevel()">NEXT LEVEL >></button>
+    <div id="screen-level" class="screen-modal">
+        <h1 style="color:var(--neon-green)">LEVEL CLEARED!</h1>
+        <p id="level-desc">...</p>
+        <div class="code-display" id="level-code">...</div>
+        <button class="start-btn" onclick="GameEngine.nextLevel()">NEXT LEVEL</button>
     </div>
-
 </div>
 
 <script>
 /**
- * ZALLY'S HOOPS - ARCADE EDITION
- * Style: 8-Bit, Neon, CRT
+ * ==========================================
+ * ZALLY'S HOOPS - CORE ENGINE
+ * Author: Gemini Champion
+ * Language: Vanilla JS (ECMAScript 2020)
+ * ==========================================
  */
 
-const COLORS = {
-    orange: '#ff6900',
-    white: '#ffffff',
-    black: '#000000',
-    skyTop: '#111',
-    skyBot: '#223',
-    green: '#4ade80'
+// --- CONSTANTS & CONFIG ---
+const CONFIG = {
+    gravity: 0.6,
+    friction: 0.99,
+    colors: {
+        orange: '#ff6900',
+        white: '#ffffff',
+        black: '#000000',
+        skyTop: '#0a0a12',
+        skyBot: '#1a1a2e',
+        neon: '#00ff00'
+    },
+    banners: [
+        "ACT LIKE AN OWNER", "FLY HIGH, DIVE DEEP", "THINK BIG, ACT FAST",
+        "NO HALLUCINATIONS", "PROMPT ENGINEERING", "ZALANDO OPS"
+    ]
 };
 
-class Game {
+// --- AUDIO SYNTHESIZER (Web Audio API) ---
+// Generates 8-bit sounds procedurally. No external files needed.
+class AudioSynth {
     constructor() {
-        this.canvas = document.getElementById('gameCanvas');
-        this.ctx = this.canvas.getContext('2d');
-        // Disable smoothing for pixel art look
-        this.ctx.imageSmoothingEnabled = false; 
-
-        // Load Asset (Fallback implemented)
-        this.zallyImg = new Image();
-        this.zallyImg.src = 'zally-basket.png';
-        this.imgLoaded = false;
-        this.zallyImg.onload = () => { this.imgLoaded = true; };
-
-        // State
-        this.state = 'MENU';
-        this.levelIdx = 0;
-        this.score = 0;
-        this.shotsMade = 0;
-
-        // Entities
-        this.ball = { x:0, y:0, vx:0, vy:0, r:12, active:false };
-        this.hoop = { x:800, y:250 };
-        this.player = { x:100, y:500 };
-
-        // Input
-        this.angle = 45;
-        this.angleDir = 1;
-        this.power = 0;
-        this.powerDir = 2;
-
-        // FX
-        this.particles = [];
-        this.floaters = [];
-        this.shake = 0;
-
-        // Levels
-        this.levels = [
-            {
-                name: "LVL 1: FEW-SHOT",
-                req: 1, 
-                dist: 500, 
-                wind: 0,
-                desc: "GEMINI NEEDS EXAMPLES! DON'T JUST ASK. SHOW IT HOW IT'S DONE.",
-                code: "PROMPT:\n'ACT AS AN OPS EXPERT.\nEXAMPLE 1: [DATA] -> [REPORT]\nEXAMPLE 2: [DATA] -> [REPORT]\nNOW DO THIS: [NEW DATA]'"
-            },
-            {
-                name: "LVL 2: CHAIN OF THOUGHT",
-                req: 1, 
-                dist: 650, 
-                wind: 0,
-                desc: "COMPLEX TASK? FORCE LOGIC! USE THE MAGIC WORDS: 'THINK STEP-BY-STEP'.",
-                code: "PROMPT:\n'ANALYZE THIS INVOICE.\n1. EXTRACT TOTALS\n2. COMPARE WITH PO\n3. FLAG DISCREPANCIES\nTHINK STEP-BY-STEP.'"
-            },
-            {
-                name: "LVL 3: DELIMITERS",
-                req: 2, 
-                dist: 600, 
-                wind: 1.5,
-                desc: "DIRTY DATA DETECTED! USE ### TO SHIELD YOUR INSTRUCTIONS.",
-                code: "PROMPT:\n'ANALYZE ONLY TEXT BETWEEN ###\n###\n[MESSY EMAIL THREAD]\n###\nEXTRACT DELIVERY DATES.'"
-            },
-            {
-                name: "LVL 4: KEYWORDS",
-                req: 2, 
-                dist: 700, 
-                wind: 0.5,
-                desc: "SPEAK THE CODE! USE [FORMATS] TO GET PERFECT OUTPUTS.",
-                code: "PROMPT:\n'GENERATE A [TABLE] OF SKUS.\nCREATE A [PYTHON SCRIPT] FOR ANALYSIS.\nWRITE A SUMMARY IN [BULLET POINTS].'"
-            }
-        ];
-
-        // Global Key Listener
-        window.addEventListener('keydown', (e) => {
-            if(e.code === 'Space') {
-                e.preventDefault(); // Stop scrolling
-                if(this.state === 'MENU') this.startLevel(0);
-                else if(this.state === 'LEVEL_UP') this.nextLevel();
-                else this.handleInput();
-            }
-        });
-
-        // Loop
-        this.loop = this.loop.bind(this);
-        requestAnimationFrame(this.loop);
+        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        this.enabled = true;
     }
 
-    startLevel(idx) {
-        document.getElementById('startScreen').style.display = 'none';
-        document.getElementById('levelScreen').style.display = 'none';
+    playTone(type, freq, duration, vol = 0.1) {
+        if (!this.enabled) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
         
+        osc.type = type; // 'square', 'sawtooth', 'triangle'
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        
+        gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        
+        osc.start();
+        osc.stop(this.ctx.currentTime + duration);
+    }
+
+    sfxJump() { this.playTone('square', 150, 0.1); }
+    sfxAim() { this.playTone('triangle', 400, 0.05, 0.05); }
+    sfxPower() { this.playTone('sawtooth', 200, 0.1, 0.05); }
+    sfxShoot() { this.playTone('square', 100, 0.3); }
+    sfxScore() { 
+        this.playTone('square', 600, 0.1); 
+        setTimeout(() => this.playTone('square', 900, 0.4), 100);
+    }
+    sfxMiss() { this.playTone('sawtooth', 150, 0.3); }
+}
+
+// --- PHYSICS ENGINE: VECTOR CLASS ---
+class Vector {
+    constructor(x, y) { this.x = x; this.y = y; }
+    add(v) { this.x += v.x; this.y += v.y; return this; }
+    sub(v) { this.x -= v.x; this.y -= v.y; return this; }
+    mult(n) { this.x *= n; this.y *= n; return this; }
+    mag() { return Math.sqrt(this.x*this.x + this.y*this.y); }
+    normalize() { 
+        let m = this.mag(); 
+        if(m > 0) this.mult(1/m); 
+        return this; 
+    }
+    static dist(v1, v2) {
+        let dx = v1.x - v2.x;
+        let dy = v1.y - v2.y;
+        return Math.sqrt(dx*dx + dy*dy);
+    }
+}
+
+// --- VISUAL FX: PARTICLE SYSTEM ---
+class Particle {
+    constructor(x, y, color) {
+        this.pos = new Vector(x, y);
+        this.vel = new Vector((Math.random()-0.5)*10, (Math.random()-0.5)*10);
+        this.life = 1.0;
+        this.decay = Math.random() * 0.03 + 0.01;
+        this.color = color;
+        this.size = Math.random() * 6 + 2;
+    }
+    update() {
+        this.pos.add(this.vel);
+        this.vel.y += 0.2; // Gravity
+        this.life -= this.decay;
+    }
+    draw(ctx) {
+        ctx.fillStyle = this.color;
+        ctx.globalAlpha = this.life;
+        ctx.fillRect(this.pos.x, this.pos.y, this.size, this.size);
+        ctx.globalAlpha = 1.0;
+    }
+}
+
+// --- GAME ENTITIES ---
+
+class Player {
+    constructor(x, y) {
+        this.pos = new Vector(x, y);
+        this.state = 'IDLE'; // IDLE, SHOOT
+        this.frame = 0;
+    }
+    draw(ctx) {
+        // Procedural Pixel Art Drawing of Zally (No image needed)
+        ctx.save();
+        ctx.translate(this.pos.x, this.pos.y);
+        
+        // Shadow
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        ctx.fillRect(10, 90, 60, 10);
+
+        // Legs
+        ctx.fillStyle = '#333';
+        ctx.fillRect(20, 60, 15, 30);
+        ctx.fillRect(45, 60, 15, 30);
+
+        // Body (Zalando Orange)
+        ctx.fillStyle = CONFIG.colors.orange;
+        ctx.fillRect(15, 20, 50, 45);
+
+        // Head
+        ctx.fillStyle = '#ffccaa';
+        ctx.fillRect(25, -10, 30, 30);
+
+        // Cap
+        ctx.fillStyle = '#111';
+        ctx.fillRect(25, -15, 30, 10);
+        ctx.fillRect(45, -15, 20, 5); // Visor
+
+        // Arms (Animation)
+        ctx.fillStyle = '#ffccaa';
+        if (GameEngine.state === 'AIM' || GameEngine.state === 'POWER') {
+             // Holding ball up
+             ctx.fillRect(50, 10, 10, 30);
+        } else {
+             // Idle
+             ctx.fillRect(35, 30, 10, 30);
+        }
+        ctx.restore();
+    }
+}
+
+class Hoop {
+    constructor(x, y) {
+        this.pos = new Vector(x, y);
+        this.width = 80;
+    }
+    draw(ctx) {
+        const x = this.pos.x;
+        const y = this.pos.y;
+
+        // Pole
+        ctx.fillStyle = '#444';
+        ctx.fillRect(x+60, y, 15, 600);
+
+        // Backboard
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(x+50, y-100, 10, 120);
+        ctx.fillStyle = CONFIG.colors.orange;
+        ctx.fillRect(x+52, y-70, 6, 50);
+
+        // Rim
+        ctx.fillStyle = CONFIG.colors.orange;
+        ctx.fillRect(x, y, 50, 5);
+
+        // Net (Procedural lines)
+        ctx.strokeStyle = '#ccc';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x, y+5); ctx.lineTo(x+10, y+40);
+        ctx.moveTo(x+50, y+5); ctx.lineTo(x+40, y+40);
+        ctx.moveTo(x+10, y+40); ctx.lineTo(x+40, y+40);
+        ctx.stroke();
+    }
+}
+
+// --- LEVEL DATA ---
+const LEVELS = [
+    {
+        title: "LEVEL 1: FEW-SHOT",
+        dist: 400,
+        wind: 0,
+        req: 1,
+        desc: "GEMINI NEEDS EXAMPLES. Don't guess. Show the pattern.",
+        code: "User: 'Convert this currency.'\nBot: 'Sure.' (BAD)\n\nUser: 'Convert: 10 USD -> 9 EUR. \nConvert: 100 USD -> ?'\nBot: '90 EUR' (GOOD)"
+    },
+    {
+        title: "LEVEL 2: CHAIN OF THOUGHT",
+        dist: 550,
+        wind: 0,
+        req: 1,
+        desc: "FORCE LOGIC. Use 'Think step-by-step' for math/analysis.",
+        code: "Prompt: 'Analyze Q3 Revenue. \nThink Step-by-Step:\n1. Sum total sales\n2. Subtract returns\n3. Compare vs Q2'"
+    },
+    {
+        title: "LEVEL 3: DELIMITERS",
+        dist: 500,
+        wind: 1.2,
+        req: 2,
+        desc: "PROTECT DATA. Use ### to separate instructions from messy inputs.",
+        code: "Prompt: 'Summarize the text between ###'\n\n###\n[Paste Messy Email Here]\n###"
+    },
+    {
+        title: "LEVEL 4: KEYWORDS",
+        dist: 650,
+        wind: 0.5,
+        req: 3,
+        desc: "SPEAK THE LANGUAGE. Ask for formats explicitly.",
+        code: "Prompt: 'Create a [TABLE].\nWrite a [PYTHON SCRIPT].\nFormat as [JSON].'"
+    }
+];
+
+// --- MAIN ENGINE CONTROLLER ---
+const GameEngine = {
+    canvas: null,
+    ctx: null,
+    synth: new AudioSynth(),
+    
+    // State
+    state: 'MENU', // MENU, IDLE, AIM, POWER, FLIGHT, ANIMATING
+    levelIdx: 0,
+    score: 0,
+    shotsMade: 0,
+    
+    // Variables
+    angle: 45,
+    angleDir: 1,
+    power: 0,
+    powerDir: 2,
+    wind: 0,
+    shake: 0,
+
+    // Collections
+    particles: [],
+    floaters: [],
+    crowdOffsets: [],
+
+    // Objects
+    player: null,
+    ball: null,
+    hoop: null,
+
+    init() {
+        this.canvas = document.getElementById('gameCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        
+        // Hide menu
+        document.getElementById('screen-start').style.display = 'none';
+        
+        // Init Objects
+        this.player = new Player(100, 500);
+        this.hoop = new Hoop(800, 250);
+        this.ball = { pos: new Vector(0,0), vel: new Vector(0,0), active: false };
+        
+        // Init Crowd
+        for(let i=0; i<20; i++) this.crowdOffsets.push(Math.random() * 10);
+
+        // Bind Inputs
+        window.addEventListener('keydown', e => { if(e.code === 'Space') this.handleInput(); });
+        this.canvas.addEventListener('mousedown', () => this.handleInput());
+
+        this.startLevel(0);
+        this.loop();
+    },
+
+    startLevel(idx) {
         this.levelIdx = idx;
         this.shotsMade = 0;
         this.updateHUD();
+        document.getElementById('screen-level').style.display = 'none';
         this.resetShot();
-    }
+    },
 
     resetShot() {
-        this.state = 'IDLE'; 
-        this.ball.active = false;
+        this.state = 'IDLE';
         this.angle = 45;
         this.power = 0;
+        this.ball.active = false;
         
-        const lvl = this.levels[this.levelIdx];
-        this.player.x = this.hoop.x - lvl.dist;
-        this.ball.x = this.player.x + 40;
-        this.ball.y = this.player.y - 10;
-
+        const lvl = LEVELS[this.levelIdx];
+        // Set positions
+        this.player.pos.x = this.hoop.pos.x - lvl.dist;
+        this.ball.pos = new Vector(this.player.pos.x + 50, this.player.pos.y + 20);
+        
+        // Set Wind
         this.wind = lvl.wind ? (Math.random() * lvl.wind - (lvl.wind/2)) : 0;
-    }
+    },
 
     handleInput() {
-        if(this.state === 'IDLE') this.state = 'AIM';
-        else if(this.state === 'AIM') this.state = 'POWER';
-        else if(this.state === 'POWER') this.shoot();
-        else if(this.state === 'REPLAY') this.resetShot();
-    }
+        if(this.state === 'IDLE') {
+            this.state = 'AIM';
+            this.synth.sfxAim();
+        } else if(this.state === 'AIM') {
+            this.state = 'POWER';
+            this.synth.sfxPower();
+        } else if(this.state === 'POWER') {
+            this.shoot();
+        }
+    },
 
     shoot() {
         this.state = 'FLIGHT';
         this.ball.active = true;
-        
+        this.synth.sfxShoot();
+
         const rad = (this.angle * Math.PI) / 180;
-        const speed = (this.power / 100) * 20 + 12; // High Speed Arcade Feel
+        const speed = (this.power / 100) * 22 + 10;
+
+        this.ball.vel = new Vector(Math.cos(rad) * speed, -Math.sin(rad) * speed);
         
-        this.ball.vx = Math.cos(rad) * speed;
-        this.ball.vy = -Math.sin(rad) * speed;
-    }
+        // FX
+        this.spawnParticles(this.ball.pos.x, this.ball.pos.y, 10, '#fff');
+    },
 
     update() {
+        // 1. STATE LOGIC
         if(this.state === 'AIM') {
-            this.angle += this.angleDir * 1.5;
+            this.angle += this.angleDir;
             if(this.angle > 80 || this.angle < 20) this.angleDir *= -1;
         }
         if(this.state === 'POWER') {
-            this.power += this.powerDir * 2;
-            if(this.power > 100 || this.power < 10) this.powerDir *= -1;
+            this.power += this.powerDir;
+            if(this.power > 100 || this.power < 5) this.powerDir *= -1;
         }
 
+        // 2. BALL PHYSICS
         if(this.state === 'FLIGHT' && this.ball.active) {
-            this.ball.vy += 0.5; // Gravity
-            this.ball.x += this.ball.vx + this.wind;
-            this.ball.y += this.ball.vy;
+            this.ball.vel.y += CONFIG.gravity;
+            this.ball.vel.x -= 0.01; // Drag
+            this.ball.pos.add(this.ball.vel);
+            this.ball.pos.x += this.wind;
 
-            // Floor
-            if(this.ball.y > 560) {
-                this.ball.y = 560;
-                this.ball.vy *= -0.6;
-                this.ball.vx *= 0.8;
-                if(Math.abs(this.ball.vy) < 1) this.fail("MISS");
+            // Floor Collision
+            if(this.ball.pos.y > 600) {
+                this.ball.pos.y = 600;
+                this.ball.vel.y *= -0.6;
+                this.ball.vel.x *= 0.8;
+                if(Math.abs(this.ball.vel.y) < 1) this.fail("SHORT");
             }
 
-            // Magnetic Hoop (Arcade Logic)
-            const dx = this.ball.x - this.hoop.x;
-            const dy = this.ball.y - this.hoop.y;
-            if(dx*dx + dy*dy < 2000 && this.ball.vy > 0) {
+            // Hoop Logic (AABB + Circle)
+            let dx = this.ball.pos.x - (this.hoop.pos.x + 25);
+            let dy = this.ball.pos.y - this.hoop.pos.y;
+            let dist = Math.sqrt(dx*dx + dy*dy);
+
+            if(dist < 40 && this.ball.vel.y > 0) {
                 this.success();
             }
 
-            if(this.ball.x > 960) this.fail("AIRBALL");
+            if(this.ball.pos.x > 1024) this.fail("AIRBALL");
         }
 
-        // FX
-        this.particles.forEach((p,i) => {
-            p.x += p.vx; p.y += p.vy; p.life -= 0.05;
-            if(p.life<=0) this.particles.splice(i,1);
-        });
-        
-        this.floaters.forEach((f,i) => {
-            f.y -= 2; f.life -= 1;
-            if(f.life<=0) this.floaters.splice(i,1);
+        // 3. FX UPDATE
+        this.particles.forEach((p, i) => {
+            p.update();
+            if(p.life <= 0) this.particles.splice(i, 1);
         });
 
-        if(this.shake > 0) this.shake *= 0.8;
+        this.floaters.forEach((f, i) => {
+            f.life--;
+            f.y -= 1;
+            if(f.life <= 0) this.floaters.splice(i, 1);
+        });
+
+        if(this.shake > 0) this.shake *= 0.9;
         if(this.shake < 0.5) this.shake = 0;
-    }
-
-    fail(reason) {
-        if(this.state === 'REPLAY') return;
-        this.state = 'REPLAY';
-        this.floaters.push({txt: reason, x:this.ball.x, y:this.ball.y, life:30, color:'#f00'});
-        setTimeout(() => { if(this.state==='REPLAY') this.resetShot() }, 1000);
-    }
+    },
 
     success() {
-        if(this.state === 'SUCCESS') return;
-        this.state = 'SUCCESS';
+        if(this.state === 'ANIMATING') return;
+        this.state = 'ANIMATING';
         this.score += 500;
         this.shotsMade++;
         this.shake = 10;
-        
-        // Pixel Explosion
-        for(let i=0; i<20; i++) {
-            this.particles.push({
-                x: this.hoop.x, y:this.hoop.y,
-                vx: (Math.random()-0.5)*10, vy: (Math.random()-0.5)*10,
-                color: Math.random()>0.5 ? COLORS.orange : '#fff',
-                life: 1.0
-            });
-        }
-        this.floaters.push({txt: "SWISH!", x:this.hoop.x, y:this.hoop.y-50, life:60, color: COLORS.green});
-        
+        this.synth.sfxScore();
+
+        // Explosion
+        this.spawnParticles(this.hoop.pos.x + 25, this.hoop.pos.y, 30, CONFIG.colors.orange);
+        this.spawnFloater("SWISH!", this.hoop.pos.x, this.hoop.pos.y - 50, CONFIG.colors.neon);
+
         this.updateHUD();
 
         setTimeout(() => {
-            const lvl = this.levels[this.levelIdx];
-            if(this.shotsMade >= lvl.req) {
-                this.state = 'LEVEL_UP';
+            if(this.shotsMade >= LEVELS[this.levelIdx].req) {
                 this.showLevelUp();
             } else {
                 this.resetShot();
             }
         }, 1500);
-    }
+    },
 
-    showLevelUp() {
-        const lvl = this.levels[this.levelIdx];
-        document.getElementById('lvlDesc').innerText = lvl.desc;
-        document.getElementById('lvlCode').innerText = lvl.code;
-        document.getElementById('levelScreen').style.display = 'flex';
-    }
-
-    nextLevel() {
-        if(this.levelIdx + 1 < this.levels.length) {
-            this.startLevel(this.levelIdx + 1);
-        } else {
-            alert("ALL LEVELS CLEARED! SCORE: " + this.score);
-            location.reload();
-        }
-    }
-
-    updateHUD() {
-        document.getElementById('scoreEl').innerText = this.score.toString().padStart(4,'0');
-        document.getElementById('levelEl').innerText = this.levels[this.levelIdx].name;
-    }
+    fail(reason) {
+        if(this.state === 'ANIMATING') return;
+        this.state = 'ANIMATING';
+        this.synth.sfxMiss();
+        this.spawnFloater(reason, this.ball.pos.x, this.ball.pos.y - 50, '#ff0000');
+        setTimeout(() => this.resetShot(), 1000);
+    },
 
     draw() {
+        // Clear & Shake
         this.ctx.save();
-        
-        // Shake
-        if(this.shake>0) {
-            this.ctx.translate(Math.random()*this.shake - this.shake/2, Math.random()*this.shake - this.shake/2);
+        if(this.shake > 0) {
+            this.ctx.translate((Math.random()-0.5)*this.shake, (Math.random()-0.5)*this.shake);
         }
+        this.ctx.clearRect(0, 0, 1024, 768);
 
-        this.ctx.clearRect(0,0,960,640);
+        // 1. PARALLAX SKY
+        this.drawSky();
 
-        // 1. SKYLINE (8-BIT)
-        this.ctx.fillStyle = '#050510';
-        this.ctx.fillRect(0,0,960,640);
-        
-        // Moon
-        this.ctx.fillStyle = '#fff';
-        this.ctx.fillRect(800, 50, 40, 40);
+        // 2. CROWD
+        this.drawCrowd();
 
-        // Buildings (Rectangles)
-        this.ctx.fillStyle = '#1a1a2e';
-        for(let i=0; i<15; i++) {
-            let h = 100 + Math.sin(i*99)*50;
-            this.ctx.fillRect(i*70, 600-h, 60, h);
-            // Windows
-            this.ctx.fillStyle = Math.random()>0.9 ? COLORS.orange : '#111';
-            this.ctx.fillRect(i*70+10, 600-h+10, 10, 10);
-            this.ctx.fillStyle = '#1a1a2e';
-        }
-
-        // 2. FLOOR
+        // 3. FLOOR
         this.ctx.fillStyle = '#222';
-        this.ctx.fillRect(0, 560, 960, 80);
-        this.ctx.strokeStyle = COLORS.orange;
+        this.ctx.fillRect(0, 600, 1024, 168);
+        this.ctx.strokeStyle = CONFIG.colors.orange;
         this.ctx.beginPath();
-        this.ctx.moveTo(0,560); this.ctx.lineTo(960,560);
+        this.ctx.moveTo(0,600); this.ctx.lineTo(1024, 600);
         this.ctx.stroke();
 
-        // 3. HOOP (Pixel Art Style)
-        const hx = this.hoop.x; const hy = this.hoop.y;
-        this.ctx.fillStyle = '#444'; this.ctx.fillRect(hx+40, hy, 10, 560-hy); // Pole
-        this.ctx.fillStyle = '#fff'; this.ctx.fillRect(hx+30, hy-80, 10, 90); // Backboard
-        this.ctx.fillStyle = COLORS.orange; this.ctx.fillRect(hx+32, hy-60, 6, 40); // Target
-        this.ctx.strokeStyle = COLORS.orange; this.ctx.lineWidth = 4;
-        this.ctx.beginPath(); this.ctx.moveTo(hx-20, hy); this.ctx.lineTo(hx+20, hy); this.ctx.stroke(); // Rim
-
-        // 4. PLAYER (ZALLY 8-BIT)
-        if(this.imgLoaded) {
-            this.ctx.save();
-            this.ctx.translate(this.player.x+40, this.player.y+40);
-            this.ctx.scale(-1, 1);
-            this.ctx.drawImage(this.zallyImg, -40, -50, 80, 100);
-            this.ctx.restore();
-        } else {
-            const px = this.player.x; const py = this.player.y;
-            this.ctx.fillStyle = COLORS.orange; this.ctx.fillRect(px, py, 40, 60); // Body
-            this.ctx.fillStyle = '#ffccaa'; this.ctx.fillRect(px+5, py-20, 30, 20); // Head
-            this.ctx.fillStyle = '#000'; this.ctx.fillRect(px, py-25, 40, 5); // Hat
-        }
-
-        // 5. BALL (Pixel Circle)
+        // 4. ENTITIES
+        this.hoop.draw(this.ctx);
+        this.player.draw(this.ctx);
+        
         if(this.ball.active) {
-            this.ctx.fillStyle = COLORS.orange;
-            this.ctx.beginPath(); this.ctx.arc(this.ball.x, this.ball.y, 12, 0, Math.PI*2); this.ctx.fill();
+            this.ctx.fillStyle = CONFIG.colors.orange;
+            this.ctx.beginPath();
+            this.ctx.arc(this.ball.pos.x, this.ball.pos.y, 12, 0, Math.PI*2);
+            this.ctx.fill();
         }
 
-        // 6. UI (Aim Arrow & Power)
-        if(this.state === 'AIM' || this.state === 'POWER') {
-            const ax = this.player.x + 40; const ay = this.player.y - 20;
-            const rad = -this.angle * Math.PI / 180;
-            const len = 80;
-            
-            // Dotted Line
-            this.ctx.strokeStyle = '#fff';
-            this.ctx.lineWidth = 4;
-            this.ctx.beginPath(); this.ctx.moveTo(ax,ay); 
-            this.ctx.lineTo(ax+Math.cos(rad)*len, ay+Math.sin(rad)*len);
-            this.ctx.stroke();
-
-            // Power Bar
-            if(this.state === 'POWER') {
-                this.ctx.fillStyle = '#fff'; this.ctx.fillRect(ax-50, ay-80, 100, 20);
-                this.ctx.fillStyle = COLORS.orange; this.ctx.fillRect(ax-50, ay-80, this.power, 20);
-            }
-        }
-
-        // 7. PARTICLES & TEXT
-        this.particles.forEach(p => {
-            this.ctx.fillStyle = p.color;
-            this.ctx.fillRect(p.x, p.y, 8, 8); // Big pixels
-        });
-
+        // 5. FX
+        this.particles.forEach(p => p.draw(this.ctx));
         this.floaters.forEach(f => {
             this.ctx.fillStyle = f.color;
-            this.ctx.font = '20px "Press Start 2P"';
-            this.ctx.fillText(f.txt, f.x, f.y);
+            this.ctx.font = "24px 'Press Start 2P'";
+            this.ctx.fillText(f.text, f.x, f.y);
         });
 
-        this.ctx.restore();
-    }
+        // 6. UI OVERLAYS (AIM / POWER)
+        if(this.state === 'AIM' || this.state === 'POWER') this.drawUI();
 
+        this.ctx.restore();
+    },
+
+    drawSky() {
+        let grad = this.ctx.createLinearGradient(0,0,0,600);
+        grad.addColorStop(0, CONFIG.colors.skyTop);
+        grad.addColorStop(1, CONFIG.colors.skyBot);
+        this.ctx.fillStyle = grad;
+        this.ctx.fillRect(0,0,1024,600);
+
+        // Buildings
+        this.ctx.fillStyle = '#0f0f1a';
+        for(let i=0; i<15; i++) {
+            let h = 100 + Math.sin(i*123)*80;
+            this.ctx.fillRect(i*80, 600-h, 70, h);
+            // Windows
+            this.ctx.fillStyle = Math.random()>0.95 ? CONFIG.colors.orange : '#111';
+            this.ctx.fillRect(i*80+10, 600-h+20, 10, 10);
+            this.ctx.fillStyle = '#0f0f1a';
+        }
+    },
+
+    drawCrowd() {
+        this.ctx.fillStyle = '#333';
+        this.ctx.fillRect(0, 500, 1024, 100);
+        
+        // Dynamic jumping crowd
+        const jump = this.state === 'ANIMATING' && this.shake > 0 ? 10 : 0;
+        
+        for(let i=0; i<30; i++) {
+            let cx = i * 40;
+            let cy = 540 + this.crowdOffsets[i%20] - (i%3===0 ? jump : 0);
+            
+            // Head
+            this.ctx.fillStyle = i%2===0 ? '#555' : CONFIG.colors.orange;
+            this.ctx.fillRect(cx, cy, 20, 20);
+            // Body
+            this.ctx.fillStyle = '#111';
+            this.ctx.fillRect(cx-5, cy+20, 30, 40);
+        }
+    },
+
+    drawUI() {
+        const p = this.player.pos;
+        const ax = p.x + 50; 
+        const ay = p.y;
+        const len = 100;
+        const rad = -(this.angle * Math.PI) / 180;
+
+        // Dotted Line
+        this.ctx.strokeStyle = '#fff';
+        this.ctx.setLineDash([5, 5]);
+        this.ctx.lineWidth = 2;
+        this.ctx.beginPath();
+        this.ctx.moveTo(ax, ay);
+        this.ctx.lineTo(ax + Math.cos(rad)*len, ay + Math.sin(rad)*len);
+        this.ctx.stroke();
+        this.ctx.setLineDash([]);
+
+        // Power Bar
+        if(this.state === 'POWER') {
+            this.ctx.fillStyle = '#fff';
+            this.ctx.fillRect(ax-20, ay-80, 60, 10);
+            this.ctx.fillStyle = this.power > 90 ? '#f00' : CONFIG.colors.orange;
+            this.ctx.fillRect(ax-20, ay-80, (this.power/100)*60, 10);
+        }
+    },
+
+    // --- UTILS ---
+    spawnParticles(x, y, count, color) {
+        for(let i=0; i<count; i++) this.particles.push(new Particle(x, y, color));
+    },
+    spawnFloater(text, x, y, color) {
+        this.floaters.push({text, x, y, color, life: 60});
+    },
+    updateHUD() {
+        document.getElementById('score-hud').innerText = "SCORE: " + this.score.toString().padStart(4, '0');
+        document.getElementById('level-hud').innerText = LEVELS[this.levelIdx].title;
+    },
+    showLevelUp() {
+        const lvl = LEVELS[this.levelIdx];
+        document.getElementById('level-desc').innerText = lvl.desc;
+        document.getElementById('level-code').innerText = lvl.code;
+        document.getElementById('screen-level').style.display = 'block';
+    },
+    nextLevel() {
+        if(this.levelIdx + 1 < LEVELS.length) {
+            this.startLevel(this.levelIdx + 1);
+        } else {
+            alert("ALL LEVELS COMPLETED! YOU ARE A GEMINI CHAMPION.");
+            location.reload();
+        }
+    },
     loop() {
         this.update();
         this.draw();
-        requestAnimationFrame(this.loop);
+        requestAnimationFrame(this.loop.bind(this));
     }
-}
+};
+
+</script>
+</body>
+</html>
