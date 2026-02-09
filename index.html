@@ -14,7 +14,7 @@
             --zalando-dark: #111;
             --neon-green: #39ff14;
             --neon-blue: #00ffff;
-            --crt-scanline: rgba(18, 16, 16, 0.2);
+            --crt-scanline: rgba(18, 16, 16, 0.25);
             --cabinet-rim: #2a2a2a;
         }
 
@@ -204,16 +204,16 @@
             <div class="hud-level" id="levelEl">LVL 1</div>
         </div>
         <div style="padding: 20px; text-align: center; color: #444; font-size: 10px; font-family: 'Share Tech Mono'; letter-spacing: 4px;">
-            YF&K OPERATIONS // TRAINING UNIT v.7.0 // SLAM DUNK
+            YF&K OPERATIONS // TRAINING UNIT v.7.5 // SLAM DUNK EDITION
         </div>
     </div>
 
     <!-- START SCREEN -->
     <div id="screen-start" class="screen-modal">
-        <h1 style="font-size: 56px;">ZALLY'S HOOPS<br>FINAL OPS</h1>
+        <h1 style="font-size: 56px;">ZALLY'S HOOPS<br>MASTER ENGINE</h1>
         <div class="subtitle">
             IL CAMPO DI BATTAGLIA DEL PROMPTING.<br>
-            NON TIRARE A CASO. INGEGNERIZZA IL CANESTRO.
+            NON TIRARE A CASO. INGEGNERIZZA IL RISULTATO.
         </div>
         
         <div class="controls-list">
@@ -237,13 +237,13 @@
     <div id="screen-victory" class="screen-modal" style="display:none;">
         <h1 style="color:#ffd700; font-size: 64px;">ALL-STAR MVP</h1>
         <div class="subtitle" style="font-size:32px; color:#fff; max-width:900px;">
-            "NON TIRI PIÙ A INDOVINARE.<br>ORA SCHIACCI OGNI OBIETTIVO!"
+            "FARE CENTRO NEL GEMINIVERSE È UN'ARTE.<br>ORA HAI LE KEYWORDS GIUSTE PER VINCERE!"
         </div>
         
         <div class="code-block" style="text-align:left; color:#fff; border-color:var(--zalando-orange); font-size: 18px; line-height: 1.8;">
-            ✓ <strong>FEW-SHOT:</strong> Fornisci esempi (Input -> Output).
-            ✓ <strong>LOGICA:</strong> Chiedi di pensare 'Step-by-Step'.
-            ✓ <strong>PRECISIONE:</strong> Cita sempre Celle (A1:B5) e Paragrafi.
+            ✓ <strong>FEW-SHOT:</strong> Dai esempi chiari per guidare lo stile.
+            ✓ <strong>STEP-BY-STEP:</strong> Forza il ragionamento logico.
+            ✓ <strong>CELLS REF:</strong> Cita sempre Celle (A1) e paragrafi.
             ✓ <strong>KEYWORDS:</strong> Usa [TABLE], [SCRIPT], [JSON].
         </div>
         
@@ -255,14 +255,11 @@
 <script>
 /**
  * =============================================================================
- * ZALLY'S HOOPS: MASTER OPS ENGINE (v7.0)
- * =============================================================================
- * Motore di gioco ultra-strutturato in Vanilla JS.
- * Nessuna libreria esterna. 1000+ righe di logica equivalente.
+ * ZALLY'S HOOPS: MASTER OPS ENGINE (v7.5)
  * =============================================================================
  */
 
-// --- 1. CORE PHYSICS & MATH ---
+// --- 1. CORE MATH & VECTOR LIBRARY ---
 class Vec2 {
     constructor(x, y) { this.x = x; this.y = y; }
     add(v) { this.x += v.x; this.y += v.y; return this; }
@@ -271,7 +268,6 @@ class Vec2 {
     mag() { return Math.sqrt(this.x*this.x + this.y*this.y); }
     copy() { return new Vec2(this.x, this.y); }
     static dist(v1, v2) { return Math.sqrt(Math.pow(v1.x-v2.x, 2) + Math.pow(v1.y-v2.y, 2)); }
-    static lerp(v1, v2, t) { return new Vec2(v1.x + (v2.x - v1.x) * t, v1.y + (v2.y - v1.y) * t); }
 }
 
 const RNG = {
@@ -279,7 +275,7 @@ const RNG = {
     int: (min, max) => Math.floor(Math.random() * (max - min + 1) + min)
 };
 
-// --- 2. GESTIONE LIVELLI & DATABASE DIDATTICO ---
+// --- 2. GESTIONE DATABASE DIDATTICO ---
 const DATABASE = [
     {
         title: "LVL 1: FEW-SHOT",
@@ -294,29 +290,28 @@ const DATABASE = [
         code: "PROMPT:\n'Analizza le discrepanze in fattura.'\n\nTHINK STEP-BY-STEP:\n1. Estrai il totale della PO.\n2. Estrai il totale della Fattura.\n3. Calcola la differenza.\n4. Se > 10€, scrivi mail di reclamo."
     },
     {
-        title: "LVL 3: DELIMITERS & REF",
+        title: "LVL 3: DELIMITERS & PRECISION",
         dist: 500, wind: 1.2, req: 2, type: "NORMAL",
-        desc: "PRECISIONE CHIRURGICA. In GSheets o Docs, cita esplicitamente CELLE (es. A1:C10) o PARAGRAFI per azzerare le allucinazioni.",
+        desc: "PRECISIONE CHIRURGICA. In Google Sheets o Docs, cita esplicitamente le CELLE (es. A1:C10) o i PARAGRAFI per azzerare le allucinazioni.",
         code: "PROMPT:\n'Analizza SOLO i dati nel Foglio1!A1:B20 racchiusi tra ###'\n\n###\n[Incolla range celle]\n###\n'Calcola il totale riferendoti alla Cella B18.'"
     },
     {
         title: "LVL 4: KEYWORDS",
         dist: 700, wind: 0.5, req: 2, type: "NORMAL",
-        desc: "PARLA LA LINGUA DEL SISTEMA. Usa le KEYWORDS per i formati: [TABLE], [SCRIPT], [JSON] o [BULLET POINTS].",
-        code: "PROMPT:\n'Analizza i feedback fornitori e genera:'\n\n1. Una [TABLE] con colonne: SKU, Problema, Urgenza.\n2. Uno [PYTHON SCRIPT] per generare il grafico dei resi."
+        desc: "KEYWORDS È LA CHIAVE. Non girarci intorno: dì a Gemini cosa generare usando parole chiave di formato.",
+        code: "PROMPT:\n'Analizza i dati e genera:'\n- Una [TABLE] riassuntiva.\n- Uno [PYTHON SCRIPT] per i grafici.\n- Un [JSON] per l'export."
     },
     {
         title: "LVL 5: SUPER SLAM DUNK",
         dist: 300, wind: 0, req: 1, type: "DUNK",
-        desc: "IL COLPO FINALE. Hai la teoria, hai la precisione. Ora schiaccia ogni dubbio operativo. Premi [INVIO].",
+        desc: "IL COLPO FINALE. Precisione massima acquisita. Ora schiaccia ogni dubbio operativo. Premi [INVIO].",
         code: "SYSTEM STATUS: UNLOCKED\n> EXECUTE: FINAL_SLAM_DUNK()\n> PREMI [INVIO] PER VOLARE A CANESTRO."
     }
 ];
 
-// --- 3. AUDIO ENGINE (PROCEDURAL SYNTH) ---
+// --- 3. AUDIO ENGINE (SINTETIZZATORE PROCEDURALE) ---
 const AudioSynth = {
-    ctx: null,
-    master: null,
+    ctx: null, master: null,
     init() {
         const AC = window.AudioContext || window.webkitAudioContext;
         this.ctx = new AC();
@@ -355,41 +350,32 @@ const AudioSynth = {
     }
 };
 
-// --- 4. GRAFICA & PARTICELLE ---
-class Particle {
-    constructor(x, y, type) {
-        this.pos = new Vec2(x, y);
-        this.vel = new Vec2(RNG.float(-6, 6), RNG.float(-6, 6));
-        this.life = 1.0;
-        this.type = type;
-        this.color = Math.random() > 0.5 ? '#ff6900' : '#fff';
-        this.decay = RNG.float(0.02, 0.04);
+// --- 4. GESTIONE ASSET (IMMAGINI) ---
+const Assets = {
+    zally: new Image(),
+    ball: new Image(),
+    basket: new Image(),
+    loadedCount: 0,
+    init() {
+        this.zally.src = 'zally_basket.png';
+        this.ball.src = 'ball.png';
+        this.basket.src = 'basket.png';
+        const checkLoad = () => { this.loadedCount++; };
+        this.zally.onload = checkLoad;
+        this.ball.onload = checkLoad;
+        this.basket.onload = checkLoad;
     }
-    update() {
-        this.pos.add(this.vel);
-        this.vel.y += 0.2; // Gravity
-        this.life -= this.decay;
-    }
-    draw(ctx) {
-        ctx.globalAlpha = this.life;
-        ctx.fillStyle = this.color;
-        ctx.fillRect(this.pos.x, this.pos.y, 5, 5);
-        ctx.globalAlpha = 1.0;
-    }
-}
+};
 
 // --- 5. ENTITÀ DI GIOCO ---
+
 class Player {
     constructor() {
         this.pos = new Vec2(100, 650);
         this.vel = new Vec2(0, 0);
-        this.width = 80;
-        this.height = 100;
+        this.width = 120; // Dimensione ottimale
+        this.height = 150;
         this.state = 'IDLE'; // IDLE, JUMP, SUPER_DUNK
-        this.sprite = new Image();
-        this.sprite.src = 'zally_basket.png';
-        this.loaded = false;
-        this.sprite.onload = () => { this.loaded = true; };
     }
 
     reset(x) {
@@ -402,20 +388,20 @@ class Player {
     jump() {
         if(this.state === 'IDLE') {
             this.state = 'JUMP';
-            this.vel.y = -13;
+            this.vel.y = -14;
             AudioSynth.sfxJump();
         }
     }
 
     update() {
-        // Fisica Salto/Dunk
         if(this.state !== 'IDLE') {
             this.vel.y += CONFIG.gravity;
             this.pos.add(this.vel);
             
-            // Slam Dunk Logic
+            // Slam Dunk Logic (Volo verso il canestro)
             if(this.state === 'SUPER_DUNK') {
-                if(this.pos.y < 250 && this.pos.x > 800) return 'DUNK_HIT';
+                // Rilevamento impatto con il canestro (hoopX: 850, hoopY: 250)
+                if(this.pos.y < 300 && this.pos.x > 820) return 'DUNK_HIT';
             }
 
             if(this.pos.y >= 650) {
@@ -433,34 +419,40 @@ class Player {
         const y = this.pos.y - this.height;
         ctx.save();
         
-        // Shadow
+        // Shadow dinamica
         ctx.fillStyle = 'rgba(0,0,0,0.4)';
         const shadowS = 1 - (650 - this.pos.y)/300;
         ctx.beginPath();
-        ctx.ellipse(x+40, 660, 30*shadowS, 8*shadowS, 0, 0, Math.PI*2);
+        ctx.ellipse(x+60, 660, 45*shadowS, 12*shadowS, 0, 0, Math.PI*2);
         ctx.fill();
 
-        if(this.loaded) {
-            ctx.translate(x+40, y+50);
-            if(this.state === 'SUPER_DUNK') ctx.rotate(0.4); // Inclinazione volo
-            ctx.drawImage(this.sprite, -40, -50, 80, 100);
+        // Disegno Zally
+        if(Assets.loadedCount >= 1) {
+            ctx.translate(x+60, y+75);
+            if(this.state === 'SUPER_DUNK') ctx.rotate(0.4); // Inclinazione volo per la schiacciata
+            ctx.drawImage(Assets.zally, -60, -75, this.width, this.height);
         } else {
             // Fallback Pixel Art
             ctx.fillStyle = '#ff6900';
-            ctx.fillRect(x+15, y+20, 50, 50);
+            ctx.fillRect(x+30, y+50, 60, 60);
             ctx.fillStyle = '#ffccaa';
-            ctx.fillRect(x+25, y-10, 30, 30);
+            ctx.fillRect(x+45, y+10, 30, 30);
         }
 
-        // Palla in mano se non è in volo
+        // Palla in mano (solo se non è in volo o è schiacciata)
         if(!ballActive) {
-            ctx.fillStyle = '#ff6900';
-            const bx = this.state === 'SUPER_DUNK' ? x + 75 : x + 65;
-            const by = this.state === 'SUPER_DUNK' ? y + 20 : y + 30;
-            ctx.beginPath();
-            ctx.arc(bx, by, 14, 0, Math.PI*2);
-            ctx.fill();
-            ctx.strokeStyle = '#000'; ctx.stroke();
+            const bx = this.state === 'SUPER_DUNK' ? x + 110 : x + 90;
+            const by = this.state === 'SUPER_DUNK' ? y + 40 : y + 60;
+            
+            if(Assets.loadedCount >= 2) {
+                ctx.drawImage(Assets.ball, bx - 20, by - 20, 40, 40);
+            } else {
+                ctx.fillStyle = '#ff6900';
+                ctx.beginPath();
+                ctx.arc(bx, by, 18, 0, Math.PI*2);
+                ctx.fill();
+                ctx.strokeStyle = '#000'; ctx.lineWidth=2; ctx.stroke();
+            }
         }
 
         ctx.restore();
@@ -474,42 +466,52 @@ class Hoop {
     draw(ctx) {
         const x = this.pos.x; const y = this.pos.y;
         
-        // Palo
-        ctx.fillStyle = '#333';
-        ctx.fillRect(x+60, y, 15, 650-y);
-        
-        // Tabellone Pro (Glass effect)
-        ctx.fillStyle = 'rgba(200, 230, 255, 0.3)';
-        ctx.fillRect(x+50, y-100, 8, 120);
-        ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 3;
-        ctx.strokeRect(x+50, y-100, 8, 120);
-        
-        // Orange square target
-        ctx.strokeStyle = '#ff6900';
-        ctx.strokeRect(x+52, y-70, 4, 40);
-
-        // Ferro (Rim)
-        ctx.fillStyle = '#ff6900';
-        ctx.fillRect(x, y, 50, 6);
-
-        // Rete procedurale
-        ctx.strokeStyle = '#ddd';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        for(let i=0; i<=50; i+=10) {
-            ctx.moveTo(x+i, y+6);
-            ctx.lineTo(x+25, y+45);
+        if(Assets.loadedCount >= 3) {
+            // Usa immagine basket.png
+            ctx.drawImage(Assets.basket, x - 50, y - 120, 150, 200);
+        } else {
+            // Fallback Tabellone Pro
+            ctx.fillStyle = '#333'; ctx.fillRect(x+60, y, 15, 650-y); // Palo
+            ctx.fillStyle = 'rgba(200, 230, 255, 0.3)';
+            ctx.fillRect(x+50, y-100, 8, 120);
+            ctx.strokeStyle = '#fff'; ctx.lineWidth = 3;
+            ctx.strokeRect(x+50, y-100, 8, 120);
+            ctx.fillStyle = '#ff6900'; ctx.fillRect(x, y, 50, 6); // Ferro
+            ctx.strokeStyle = '#ddd'; ctx.lineWidth = 1; ctx.beginPath();
+            for(let i=0; i<=50; i+=10) { ctx.moveTo(x+i, y+6); ctx.lineTo(x+25, y+45); }
+            ctx.stroke();
         }
-        ctx.stroke();
     }
 }
 
-// --- 6. GAME ENGINE ---
+// --- 6. SISTEMA PARTICELLE ---
+class Particle {
+    constructor(x, y, type) {
+        this.pos = new Vec2(x, y);
+        this.vel = new Vec2(RNG.float(-8, 8), RNG.float(-8, 8));
+        this.life = 1.0;
+        this.type = type;
+        this.color = Math.random() > 0.5 ? '#ff6900' : '#fff';
+        this.decay = RNG.float(0.015, 0.03);
+    }
+    update() {
+        this.pos.add(this.vel);
+        this.vel.y += 0.15; // Gravity
+        this.life -= this.decay;
+    }
+    draw(ctx) {
+        ctx.globalAlpha = this.life;
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.pos.x, this.pos.y, 6, 6);
+        ctx.globalAlpha = 1.0;
+    }
+}
+
+// --- 7. MOTORE DI GIOCO (GAME ENGINE) ---
 const Game = {
     canvas: null, ctx: null,
     state: 'MENU', levelIdx: 0, score: 0, shotsMade: 0,
-    player: null, hoop: null, ball: {pos:new Vec2(0,0), vel:new Vec2(0,0), active:false},
+    player: null, hoop: null, ball: {pos:new Vec2(0,0), vel:new Vec2(0,0), active:false, r:18},
     keys: {left:false, right:false, space:false, enter:false},
     angle: 45, power: 0, wind: 0, particles: [], floaters: [], crowd: [], shake: 0,
 
@@ -517,13 +519,15 @@ const Game = {
         this.canvas = document.getElementById('gameCanvas');
         this.ctx = this.canvas.getContext('2d');
         AudioSynth.init();
+        Assets.init();
+        
         this.player = new Player();
         this.hoop = new Hoop();
         
-        // Popola crowd
-        for(let i=0; i<60; i++) this.crowd.push({
-            c: CONFIG.colors.crowd[RNG.int(0,5)],
-            off: RNG.float(0, 10),
+        // Genera Crowd dinamicamente
+        for(let i=0; i<80; i++) this.crowd.push({
+            c: CONFIG.colors.crowd[RNG.int(0, CONFIG.colors.crowd.length - 1)],
+            off: RNG.float(0, 15),
             id: i
         });
 
@@ -567,8 +571,8 @@ const Game = {
         
         if(lvl.type === 'DUNK') {
             this.state = 'DUNK_READY';
-            this.player.reset(200);
-            document.getElementById('next-btn').innerText = "VITTORIA!";
+            this.player.reset(150); // Posizione di stacco schiacciata
+            document.getElementById('next-btn').innerText = "VINCERE!";
         } else {
             this.state = 'PLAY';
             this.player.reset(850 - lvl.dist);
@@ -577,14 +581,16 @@ const Game = {
 
     shoot() {
         this.state = 'FLIGHT';
-        this.player.jump();
+        this.player.jump(); // Esegue il saltello
         this.ball.active = true;
         AudioSynth.sfxShoot();
         
         const rad = -(this.angle * Math.PI) / 180;
-        const spd = (this.power / 100) * 20 + 12;
-        this.ball.pos = new Vec2(this.player.pos.x + 65, this.player.pos.y - 65);
-        this.ball.vel = new Vec2(Math.cos(rad) * spd, Math.sin(rad) * spd - 3);
+        const spd = (this.power / 100) * 22 + 10;
+        
+        // La palla parte coordinata con l'altezza di Zally durante il salto
+        this.ball.pos = new Vec2(this.player.pos.x + 90, this.player.pos.y - 120);
+        this.ball.vel = new Vec2(Math.cos(rad) * spd, Math.sin(rad) * spd - 2);
     },
 
     startSuperDunk() {
@@ -592,29 +598,32 @@ const Game = {
         this.player.state = 'SUPER_DUNK';
         AudioSynth.sfxJump();
         
-        // Calcolo traiettoria perfetta per schiacciata
-        const targetX = 850;
-        const frames = 55;
+        // Calcolo traiettoria verso il canestro
+        const targetX = 840;
+        const frames = 60; // Durata volo
         this.player.vel.x = (targetX - this.player.pos.x) / frames;
-        this.player.vel.y = -18; // Super Slancio
+        this.player.vel.y = -22; // Salto enorme!
     },
 
     update() {
         const playerEvent = this.player.update();
         
+        // Se schiacciata colpisce il ferro
         if(this.state === 'DUNK_ANIMATION' && playerEvent === 'DUNK_HIT') {
             this.successDunk();
         }
 
+        // Mira e Potenza
         if(this.state === 'PLAY') {
-            if(this.keys.left && this.angle < 85) { this.angle++; AudioSynth.sfxAim(); }
-            if(this.keys.right && this.angle > 10) { this.angle--; AudioSynth.sfxAim(); }
+            if(this.keys.left && this.angle < 85) { this.angle += 1.2; AudioSynth.sfxAim(); }
+            if(this.keys.right && this.angle > 10) { this.angle -= 1.2; AudioSynth.sfxAim(); }
             if(this.keys.space) {
-                this.power += 1.5; if(this.power > 100) this.power = 100;
+                this.power += 2; if(this.power > 100) this.power = 100;
                 if(Math.floor(this.power)%10 === 0) AudioSynth.sfxPower(this.power);
             }
         }
 
+        // Fisica Palla Volante
         if(this.state === 'FLIGHT' && this.ball.active) {
             this.ball.vel.y += CONFIG.gravity;
             this.ball.vel.x *= CONFIG.physics.drag;
@@ -622,44 +631,46 @@ const Game = {
             this.ball.pos.x += this.wind;
 
             const dist = Vec2.dist(this.ball.pos, new Vec2(875, 250));
-            if(dist < 40 && this.ball.vel.y > 0) this.success();
+            if(dist < 45 && this.ball.vel.y > 0) this.success();
             
             if(this.ball.pos.y > 650) {
                 this.ball.pos.y = 650; this.ball.vel.y *= -0.6; AudioSynth.sfxBounce();
-                if(Math.abs(this.ball.vel.y) < 1) this.fail("CORTO");
+                if(Math.abs(this.ball.vel.y) < 1) this.fail("TROPPO CORTO");
             }
-            if(this.ball.pos.x > 1024) this.fail("AIRBALL");
+            if(this.ball.pos.x > 1024) this.fail("FUORI CAMPO");
         }
 
+        // Update FX
         this.particles.forEach((p,i) => { p.update(); if(p.life<=0) this.particles.splice(i,1); });
         this.floaters.forEach((f,i) => { f.y--; f.life--; if(f.life<=0) this.floaters.splice(i,1); });
-        if(this.shake > 0) { this.shake *= 0.9; if(this.shake<0.5) this.shake=0; }
+        if(this.shake > 0) { this.shake *= 0.85; if(this.shake<0.5) this.shake=0; }
     },
 
     successDunk() {
         this.state = 'ANIMATE';
-        this.score += 1500;
-        this.shake = 25;
+        this.score += 2000;
+        this.shake = 30; // Terremoto!
         AudioSynth.sfxDunk();
         
-        // Palla schiacciata violentemente giù
+        // Palla scagliata a terra
         this.ball.active = true;
-        this.ball.pos = new Vec2(875, 260);
-        this.ball.vel = new Vec2(0, 18);
+        this.ball.pos = new Vec2(875, 270);
+        this.ball.vel = new Vec2(2, 20);
         
-        for(let i=0; i<60; i++) this.particles.push(new Particle(875, 250, 'spark'));
-        this.floaters.push({text:"SLAM DUNK!!", x:750, y:200, color:CONFIG.colors.orange, life:80});
+        for(let i=0; i<80; i++) this.particles.push(new Particle(875, 250, 'spark'));
+        this.floaters.push({text:"SUPER SLAM!!", x:700, y:200, color:CONFIG.colors.orange, life:100});
         
-        setTimeout(() => this.showLevelUp(), 2000);
+        setTimeout(() => this.showLevelUp(), 2500);
     },
 
     success() {
         if(this.state === 'ANIMATE') return;
         this.state = 'ANIMATE';
-        this.score += 500; this.shotsMade++;
-        this.shake = 8; AudioSynth.sfxSwish();
+        this.score += 500;
+        this.shotsMade++;
+        this.shake = 10; AudioSynth.sfxSwish();
         this.floaters.push({text:"SWISH!", x:820, y:200, color:'#39ff14', life:60});
-        for(let i=0; i<30; i++) this.particles.push(new Particle(875, 250, 'confetti'));
+        for(let i=0; i<40; i++) this.particles.push(new Particle(875, 250, 'confetti'));
         
         this.updateHUD();
         setTimeout(() => {
@@ -696,69 +707,75 @@ const Game = {
         document.getElementById('screen-level').style.display = 'flex';
     },
 
+    // --- 8. RENDER LOOP ---
     draw() {
         this.ctx.save();
         if(this.shake>0) this.ctx.translate(RNG.float(-this.shake, this.shake), RNG.float(-this.shake, this.shake));
         
-        // 1. SKY PARALLAX
+        // 1. SKY
         let sky = this.ctx.createLinearGradient(0,0,0,768);
-        sky.addColorStop(0, '#050510'); sky.addColorStop(1, '#151525');
+        sky.addColorStop(0, '#020208'); sky.addColorStop(1, '#101030');
         this.ctx.fillStyle = sky; this.ctx.fillRect(0,0,1024,768);
 
-        // 2. CITY BUILDINGS
-        this.ctx.fillStyle = '#080815';
-        for(let i=0; i<18; i++) {
-            let h = 120 + Math.sin(i*132)*90;
-            this.ctx.fillRect(i*65, 650-h, 55, h);
-            if(Math.random()>0.97) { this.ctx.fillStyle = '#ff6900'; this.ctx.fillRect(i*65+10, 650-h+20, 5, 5); this.ctx.fillStyle='#080815'; }
+        // 2. BUILDINGS (PARALLAX EFFECT)
+        this.ctx.fillStyle = '#050515';
+        for(let i=0; i<20; i++) {
+            let h = 100 + Math.sin(i*123)*100;
+            this.ctx.fillRect(i*60, 650-h, 58, h);
+            if(Math.random()>0.98) { this.ctx.fillStyle = '#ff6900'; this.ctx.fillRect(i*60+10, 650-h+30, 5, 5); this.ctx.fillStyle='#050515'; }
         }
 
-        // 3. CROWD & BLEACHERS
-        this.ctx.fillStyle = '#222'; this.ctx.fillRect(0, 550, 1024, 100);
+        // 3. SPALTI (CROWD & BLEACHERS)
+        this.ctx.fillStyle = '#1a1a1a'; this.ctx.fillRect(0, 540, 1024, 110);
         this.crowd.forEach(f => {
-            let jp = (this.state === 'ANIMATE') ? Math.sin(Date.now()/60 + f.id)*12 : 0;
+            let jp = (this.state === 'ANIMATE') ? Math.sin(Date.now()/50 + f.id)*15 : 0;
             this.ctx.fillStyle = f.c;
-            this.ctx.fillRect(f.id*17, 600 - f.off - jp, 14, 25);
-            this.ctx.fillStyle = '#ffccaa'; this.ctx.fillRect(f.id*17+2, 600-f.off-jp-8, 10, 8);
+            this.ctx.fillRect(f.id*13, 590 - f.off - jp, 11, 25);
+            this.ctx.fillStyle = '#ffccaa'; this.ctx.fillRect(f.id*13+2, 590-f.off-jp-8, 7, 7);
         });
 
-        // 4. FLOOR
-        this.ctx.fillStyle = '#151515'; this.ctx.fillRect(0, 650, 1024, 118);
-        this.ctx.strokeStyle = '#ff6900'; this.ctx.lineWidth = 5;
+        // 4. FLOOR (ZALANDO OPS COURT)
+        this.ctx.fillStyle = '#111'; this.ctx.fillRect(0, 650, 1024, 118);
+        this.ctx.strokeStyle = '#ff6900'; this.ctx.lineWidth = 6;
         this.ctx.beginPath(); this.ctx.moveTo(0,650); this.ctx.lineTo(1024,650); this.ctx.stroke();
 
         // 5. ENTITIES
         this.hoop.draw(this.ctx);
-        // Zally (mostra palla in mano solo se non attiva o è schiacciata in mano)
+        
+        // Palla attiva o in mano
         const isBallInHand = !this.ball.active || this.state === 'DUNK_ANIMATION';
         this.player.draw(this.ctx, isBallInHand);
         
         if(this.ball.active) {
-            this.ctx.fillStyle = '#ff6900';
-            this.ctx.beginPath(); this.ctx.arc(this.ball.pos.x, this.ball.pos.y, 14, 0, Math.PI*2); this.ctx.fill();
-            this.ctx.strokeStyle = '#000'; this.ctx.lineWidth=2; this.ctx.stroke();
+            if(Assets.loadedCount >= 2) {
+                ctx.drawImage(Assets.ball, this.ball.pos.x - 20, this.ball.pos.y - 20, 40, 40);
+            } else {
+                this.ctx.fillStyle = '#ff6900';
+                this.ctx.beginPath(); this.ctx.arc(this.ball.pos.x, this.ball.pos.y, 18, 0, Math.PI*2); this.ctx.fill();
+                this.ctx.strokeStyle = '#000'; this.ctx.lineWidth=2; this.ctx.stroke();
+            }
         }
 
         // UI MIRA (Solo livelli normali)
         if(this.state === 'PLAY' && DATABASE[this.levelIdx].type !== 'DUNK') {
-            const ax = this.player.pos.x+55; const ay = this.player.pos.y-75;
+            const ax = this.player.pos.x+90; const ay = this.player.pos.y-100;
             const r = -(this.angle*Math.PI)/180;
-            this.ctx.strokeStyle = '#fff'; this.ctx.lineWidth = 2; this.ctx.setLineDash([5,5]);
-            this.ctx.beginPath(); this.ctx.moveTo(ax,ay); this.ctx.lineTo(ax+Math.cos(r)*110, ay+Math.sin(r)*110); this.ctx.stroke(); this.ctx.setLineDash([]);
-            // Power
-            this.ctx.fillStyle = '#fff'; this.ctx.fillRect(ax-30, ay-55, 60, 10);
+            this.ctx.strokeStyle = '#fff'; this.ctx.lineWidth = 3; this.ctx.setLineDash([8,8]);
+            this.ctx.beginPath(); this.ctx.moveTo(ax,ay); this.ctx.lineTo(ax+Math.cos(r)*140, ay+Math.sin(r)*140); this.ctx.stroke(); this.ctx.setLineDash([]);
+            // Power Bar
+            this.ctx.fillStyle = '#fff'; this.ctx.fillRect(ax-40, ay-70, 80, 12);
             this.ctx.fillStyle = this.power>90 ? '#f00' : '#ff6900';
-            this.ctx.fillRect(ax-30, ay-55, (this.power/100)*60, 10);
+            this.ctx.fillRect(ax-40, ay-70, (this.power/100)*80, 12);
         }
 
         if(this.state === 'DUNK_READY') {
-            this.ctx.fillStyle = '#fff'; this.ctx.font = "18px 'Press Start 2P'";
-            this.ctx.fillText("PREMI [INVIO] PER VOLARE!", 120, 480);
+            this.ctx.fillStyle = '#fff'; this.ctx.font = "20px 'Press Start 2P'";
+            this.ctx.fillText("PREMI [INVIO] PER LA SCHIACCIATA FINALE!", 80, 480);
         }
 
         this.particles.forEach(p => p.draw(this.ctx));
         this.floaters.forEach(f => {
-            this.ctx.fillStyle = f.color; this.ctx.font = "20px 'Press Start 2P'";
+            this.ctx.fillStyle = f.color; this.ctx.font = "24px 'Press Start 2P'";
             this.ctx.fillText(f.text, f.x, f.y);
         });
 
@@ -771,3 +788,4 @@ const Game = {
 </script>
 </body>
 </html>
+
