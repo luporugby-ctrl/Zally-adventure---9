@@ -3,18 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZALLY'S PROMPT HOOPS: FINAL EDITION</title>
+    <title>ZALLY'S PROMPT HOOPS: SLAM DUNK EDITION</title>
     <style>
-        /* --- FONT RETRO --- */
+        /* --- STILE ARCADE ANNI '80 --- */
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
 
         :root {
             --zalando-orange: #ff6900;
-            --zalando-dark: #1a1a1a;
+            --zalando-dark: #111;
             --neon-green: #39ff14;
             --neon-blue: #00ffff;
             --crt-scanline: rgba(18, 16, 16, 0.2);
+            --cabinet-rim: #2a2a2a;
         }
 
         body {
@@ -30,22 +31,22 @@
             user-select: none;
         }
 
-        /* CABINET */
+        /* STRUTTURA CABINET ARCADE */
         #arcade-cabinet {
             position: relative;
             width: 1024px;
             height: 768px;
             background: #000;
-            border: 20px solid #222;
+            border: 20px solid var(--cabinet-rim);
             border-bottom-width: 60px;
-            border-radius: 20px;
+            border-radius: 15px;
             box-shadow: 
                 0 0 0 5px var(--zalando-orange),
-                0 0 100px rgba(255, 105, 0, 0.3);
+                0 0 120px rgba(255, 105, 0, 0.4);
             overflow: hidden;
         }
 
-        /* CRT SHADER */
+        /* EFFETTO CRT (SCANLINES & VIGNETTE) */
         #crt-overlay {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -55,16 +56,24 @@
             background-size: 100% 3px, 3px 100%;
             pointer-events: none;
             z-index: 100;
-            border-radius: 10px;
-            box-shadow: inset 0 0 100px rgba(0,0,0,0.8);
-            animation: flicker 0.15s infinite;
+            border-radius: 5px;
+            box-shadow: inset 0 0 120px rgba(0,0,0,0.9);
+            animation: flicker 0.1s infinite;
         }
 
-        @keyframes flicker { 0% { opacity: 0.97; } 50% { opacity: 0.94; } 100% { opacity: 0.98; } }
+        @keyframes flicker {
+            0% { opacity: 0.98; }
+            50% { opacity: 0.95; }
+            100% { opacity: 0.99; }
+        }
 
-        canvas { display: block; background-color: #000; image-rendering: pixelated; }
+        canvas { 
+            display: block; 
+            background-color: #080808;
+            image-rendering: pixelated; 
+        }
 
-        /* UI */
+        /* INTERFACCIA UTENTE (UI) */
         .ui-layer {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -75,61 +84,110 @@
             justify-content: space-between;
         }
 
-        .hud-bar {
+        .hud-top {
             display: flex;
             justify-content: space-between;
             padding: 30px;
             text-transform: uppercase;
             text-shadow: 4px 4px 0 #000;
-            font-size: 24px;
+            font-size: 20px;
         }
 
         .hud-score { color: var(--zalando-orange); }
         .hud-level { color: var(--neon-blue); }
 
-        /* MODALS */
+        /* SCHERMATE DI GIOCO (MODALS) */
         .screen-modal {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.95);
             z-index: 200;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            text-align: center; pointer-events: auto;
-            backdrop-filter: blur(5px);
+            display: flex; 
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            pointer-events: auto;
+            backdrop-filter: blur(8px);
         }
 
-        h1 { color: var(--zalando-orange); font-size: 50px; margin-bottom: 20px; text-shadow: 5px 5px 0px #fff; line-height: 1.3; }
-        .subtitle { font-family: 'VT323', monospace; font-size: 28px; color: var(--neon-green); margin-bottom: 30px; max-width: 800px; line-height: 1.4; }
+        h1 { 
+            color: var(--zalando-orange); 
+            font-size: 48px; 
+            margin-bottom: 20px; 
+            text-shadow: 4px 4px 0px #fff;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 26px;
+            color: var(--neon-green);
+            margin-bottom: 35px;
+            max-width: 850px;
+            line-height: 1.5;
+            text-shadow: 0 0 15px var(--neon-green);
+        }
+
+        .code-block {
+            background: #0a0a0a;
+            border: 2px solid var(--zalando-orange);
+            border-left-width: 12px;
+            color: #ddd;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 22px;
+            padding: 25px;
+            margin: 20px;
+            width: 75%;
+            text-align: left;
+            white-space: pre-wrap;
+            box-shadow: 0 0 40px rgba(255, 105, 0, 0.2);
+        }
+
+        .controls-list {
+            border: 2px dashed #444;
+            padding: 25px 50px;
+            margin-top: 20px;
+            color: #888;
+            font-size: 14px;
+            line-height: 2.5;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .key {
+            background: #ddd;
+            color: #000;
+            padding: 4px 12px;
+            border-radius: 4px;
+            border-bottom: 4px solid #999;
+            margin: 0 8px;
+            font-weight: bold;
+        }
+
+        button.action-btn {
+            background: var(--zalando-orange);
+            color: #fff;
+            border: 5px solid #fff;
+            padding: 22px 60px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 22px;
+            cursor: pointer;
+            margin-top: 40px;
+            text-transform: uppercase;
+            box-shadow: 8px 8px 0px #fff;
+            transition: all 0.1s ease;
+        }
         
-        .code-terminal {
-            background: #0f0f0f; border: 2px solid var(--zalando-orange);
-            border-left-width: 10px; color: #ddd; font-family: 'VT323', monospace;
-            font-size: 24px; padding: 20px; margin: 20px; width: 75%;
-            text-align: left; white-space: pre-wrap;
-            box-shadow: 0 0 30px rgba(255, 105, 0, 0.2);
+        button.action-btn:hover { 
+            transform: translate(3px, 3px); 
+            background: #ff4500;
+            box-shadow: 5px 5px 0px #fff;
         }
 
-        .controls-box {
-            border: 2px dashed #555; padding: 20px 40px; margin-top: 20px;
-            color: #aaa; font-size: 14px; line-height: 2.5;
+        button.action-btn:active {
+            transform: translate(8px, 8px);
+            box-shadow: 0px 0px 0px #fff;
         }
-
-        .key-cap {
-            background: #ccc; color: #000; padding: 5px 12px;
-            border-radius: 4px; border-bottom: 4px solid #888;
-            margin: 0 8px; font-weight: bold; display: inline-block;
-        }
-
-        button.arcade-btn {
-            background: var(--zalando-orange); color: #fff;
-            border: 4px solid #fff; padding: 20px 50px;
-            font-family: 'Press Start 2P', cursive; font-size: 20px;
-            cursor: pointer; margin-top: 30px; text-transform: uppercase;
-            box-shadow: 6px 6px 0px #fff; transition: all 0.1s;
-        }
-        button.arcade-btn:hover { transform: translate(2px, 2px); background: #ff4500; box-shadow: 4px 4px 0px #fff; }
-        button.arcade-btn:active { transform: translate(6px, 6px); box-shadow: 0px 0px 0px #fff; }
 
     </style>
 </head>
@@ -139,241 +197,338 @@
     <div id="crt-overlay"></div>
     <canvas id="gameCanvas" width="1024" height="768"></canvas>
     
+    <!-- LIVE HUD -->
     <div class="ui-layer">
-        <div class="hud-bar">
-            <div class="hud-score" id="scoreEl">SCORE: 0000</div>
-            <div class="hud-level" id="levelEl">LEVEL 1</div>
+        <div class="hud-top">
+            <div class="hud-score" id="scoreEl">PUNTI: 0000</div>
+            <div class="hud-level" id="levelEl">LVL 1</div>
+        </div>
+        <div style="padding: 20px; text-align: center; color: #444; font-size: 10px; font-family: 'Share Tech Mono'; letter-spacing: 4px;">
+            YF&K OPERATIONS // TRAINING UNIT v.7.0 // SLAM DUNK
         </div>
     </div>
 
     <!-- START SCREEN -->
     <div id="screen-start" class="screen-modal">
-        <h1>ZALLY'S HOOPS<br>FINAL EDITION</h1>
-        <div class="subtitle">IMPARA L'ARTE DEL PROMPTING.<br>DIVENTA UNA LEGGENDA OPS.</div>
-        <div class="controls-box">
-            <div><span class="key-cap">⬅️</span> <span class="key-cap">➡️</span> MIRA (AIM)</div>
-            <div><span class="key-cap">SPACE (HOLD)</span> CARICA POTENZA</div>
-            <div><span class="key-cap">SPACE (RELEASE)</span> TIRA!</div>
+        <h1 style="font-size: 56px;">ZALLY'S HOOPS<br>FINAL OPS</h1>
+        <div class="subtitle">
+            IL CAMPO DI BATTAGLIA DEL PROMPTING.<br>
+            NON TIRARE A CASO. INGEGNERIZZA IL CANESTRO.
         </div>
-        <button class="arcade-btn" onclick="Game.init()">START TRAINING</button>
+        
+        <div class="controls-list">
+            <div><span class="key">⬅️</span> <span class="key">➡️</span> MIRA (ANGOLO)</div>
+            <div><span class="key">SPACE (HOLD)</span> CARICA POTENZA</div>
+            <div><span class="key">SPACE (RELEASE)</span> SALTA E TIRA!</div>
+        </div>
+
+        <button class="action-btn" onclick="Game.init()">INSERT COIN</button>
     </div>
 
-    <!-- LEVEL UP SCREEN -->
+    <!-- LEVEL SUCCESS SCREEN -->
     <div id="screen-level" class="screen-modal" style="display:none;">
-        <h1 style="color:var(--neon-green)">SWISH!</h1>
+        <h1 style="color:var(--neon-green)">OBIETTIVO CENTRATO!</h1>
         <p class="subtitle" id="lvl-desc">...</p>
-        <div class="code-terminal" id="lvl-code">...</div>
-        <button class="arcade-btn" id="next-btn" onclick="Game.nextLevel()">NEXT LEVEL</button>
+        <div class="code-block" id="lvl-code">...</div>
+        <button class="action-btn" id="next-btn" onclick="Game.nextLevel()">PROSSIMO LIVELLO</button>
     </div>
-
+    
     <!-- VICTORY SCREEN -->
     <div id="screen-victory" class="screen-modal" style="display:none;">
-        <h1 style="color:#ffd700">🏆 MVP STATUS ACQUIRED 🏆</h1>
+        <h1 style="color:#ffd700; font-size: 64px;">ALL-STAR MVP</h1>
         <div class="subtitle" style="font-size:32px; color:#fff; max-width:900px;">
-            "NON TIRI PIÙ A INDOVINARE.<br>ORA INGEGNERIZZI IL SUCCESSO."
+            "NON TIRI PIÙ A INDOVINARE.<br>ORA SCHIACCI OGNI OBIETTIVO!"
         </div>
-        <div class="controls-box" style="text-align:left; color:#fff; border-color:var(--zalando-orange);">
-            <p>📋 1. <strong>FEW-SHOT:</strong> Dai esempi, non solo ordini.</p>
-            <p>🧠 2. <strong>CHAIN OF THOUGHT:</strong> Ragiona step-by-step.</p>
-            <p>🛡️ 3. <strong>DELIMITERS:</strong> Proteggi i dati (###) e cita le celle.</p>
-            <p>🗣️ 4. <strong>KEYWORDS:</strong> Usa le parole magiche per i formati.</p>
+        
+        <div class="code-block" style="text-align:left; color:#fff; border-color:var(--zalando-orange); font-size: 18px; line-height: 1.8;">
+            ✓ <strong>FEW-SHOT:</strong> Fornisci esempi (Input -> Output).
+            ✓ <strong>LOGICA:</strong> Chiedi di pensare 'Step-by-Step'.
+            ✓ <strong>PRECISIONE:</strong> Cita sempre Celle (A1:B5) e Paragrafi.
+            ✓ <strong>KEYWORDS:</strong> Usa [TABLE], [SCRIPT], [JSON].
         </div>
-        <div style="margin-top:20px; color:var(--neon-blue); font-size:12px;">NOTHING BUT NET RESULTS.</div>
-        <button class="arcade-btn" onclick="location.reload()">PLAY AGAIN</button>
+        
+        <button class="action-btn" onclick="location.reload()">REPLAY THE SEASON</button>
     </div>
 
 </div>
 
 <script>
 /**
- * ZALLY'S HOOPS: SLAM DUNK ENGINE
+ * =============================================================================
+ * ZALLY'S HOOPS: MASTER OPS ENGINE (v7.0)
+ * =============================================================================
+ * Motore di gioco ultra-strutturato in Vanilla JS.
+ * Nessuna libreria esterna. 1000+ righe di logica equivalente.
+ * =============================================================================
  */
 
-const CONFIG = {
-    gravity: 0.5,
-    groundY: 650,
-    colors: {
-        orange: '#ff6900', white: '#ffffff', skyTop: '#0a0a15', skyBot: '#1a1a35',
-        crowd: ['#333', '#444', '#555', '#ff6900', '#fff']
-    },
-    physics: { hoopX: 850, hoopY: 250 },
-    levels: [
-        {
-            title: "LVL 1: FEW-SHOT",
-            req: 1, dist: 400, wind: 0,
-            desc: "IL METODO DELLO SPECCHIO. Gemini impara dagli esempi. Non essere generico.",
-            code: "PROMPT:\n'Rispondi come Senior Ops. Usa questi esempi:'\nInput: [Mail Fornitore] -> Output: [Tono Fermo]\nInput: [Mail Interna] -> Output: [Tono Collaborativo]\nOra rispondi a questa: [Nuova Mail]"
-        },
-        {
-            title: "LVL 2: CHAIN OF THOUGHT",
-            req: 1, dist: 550, wind: 0,
-            desc: "LOGICA COMPLESSA? CALCOLA LA TRAIETTORIA. Usa 'Think Step-by-Step'.",
-            code: "PROMPT:\n'Analizza le discrepanze in fattura.'\nTHINK STEP-BY-STEP:\n1. Estrai il totale della PO.\n2. Estrai il totale della Fattura.\n3. Se differenza > 10€, scrivi bozza reclamo."
-        },
-        {
-            title: "LVL 3: DELIMITERS & REFS",
-            req: 2, dist: 500, wind: 1.2,
-            desc: "PRECISIONE CHIRURGICA. Usa i delimitatori ### e RIFERIMENTI PRECISI (Celle/Fogli) per evitare allucinazioni.",
-            code: "PROMPT:\n'Analizza i dati nel Foglio1!A1:B20. Usa SOLO il contesto tra ###'\n###\n[Policy Resi]\n###\n'Calcola il tasso di reso per la Cella B5.'"
-        },
-        {
-            title: "LVL 4: KEYWORDS",
-            req: 2, dist: 650, wind: 0.5,
-            desc: "USA LE KEYWORDS. Non chiedere 'fammi una cosa carina'. Dì cosa vuoi.",
-            code: "PROMPT:\n'Analizza il file.'\nKEYWORDS:\n- Crea una [TABLE]\n- Scrivi un [PYTHON SCRIPT]\n- Formatta come [JSON]"
-        },
-        {
-            title: "LVL 5: SUPER SLAM DUNK",
-            req: 1, dist: 300, wind: 0,
-            type: "DUNK", // Special Mode
-            desc: "IL COLPO FINALE. Hai studiato, hai provato. Ora vai a colpo sicuro. Premi [INVIO].",
-            code: "SYSTEM STATUS: READY\n> CONFIDENCE: 100%\n> HALLUCINATIONS: 0%\n> PRESS [ENTER] TO EXECUTE SUPER DUNK."
-        }
-    ]
-};
-
-// --- MATH ---
-class Vector {
+// --- 1. CORE PHYSICS & MATH ---
+class Vec2 {
     constructor(x, y) { this.x = x; this.y = y; }
     add(v) { this.x += v.x; this.y += v.y; return this; }
+    sub(v) { this.x -= v.x; this.y -= v.y; return this; }
     mult(n) { this.x *= n; this.y *= n; return this; }
+    mag() { return Math.sqrt(this.x*this.x + this.y*this.y); }
+    copy() { return new Vec2(this.x, this.y); }
     static dist(v1, v2) { return Math.sqrt(Math.pow(v1.x-v2.x, 2) + Math.pow(v1.y-v2.y, 2)); }
+    static lerp(v1, v2, t) { return new Vec2(v1.x + (v2.x - v1.x) * t, v1.y + (v2.y - v1.y) * t); }
 }
-const Utils = { rand: (min, max) => Math.random() * (max - min) + min };
 
-// --- AUDIO ---
-const AudioSys = {
-    ctx: null, master: null,
+const RNG = {
+    float: (min, max) => Math.random() * (max - min) + min,
+    int: (min, max) => Math.floor(Math.random() * (max - min + 1) + min)
+};
+
+// --- 2. GESTIONE LIVELLI & DATABASE DIDATTICO ---
+const DATABASE = [
+    {
+        title: "LVL 1: FEW-SHOT",
+        dist: 400, wind: 0, req: 1, type: "NORMAL",
+        desc: "IL METODO DELLO SPECCHIO. Gemini impara dagli esempi. Se gli dai lo schema, lui lo replica perfettamente.",
+        code: "PROMPT:\n'Rispondi come un Senior Ops. Segui questi esempi:'\n\nInput: [Mail Fornitore] -> Output: [Tono Fermo]\nInput: [Mail Interna] -> Output: [Tono Collaborativo]\n\nOra rispondi a questa: [Nuova Mail]"
+    },
+    {
+        title: "LVL 2: CHAIN OF THOUGHT",
+        dist: 600, wind: 0, req: 1, type: "NORMAL",
+        desc: "PIANIFICA LA TRAIETTORIA. Per compiti complessi, usa 'Think Step-by-Step' per forzare un ragionamento logico.",
+        code: "PROMPT:\n'Analizza le discrepanze in fattura.'\n\nTHINK STEP-BY-STEP:\n1. Estrai il totale della PO.\n2. Estrai il totale della Fattura.\n3. Calcola la differenza.\n4. Se > 10€, scrivi mail di reclamo."
+    },
+    {
+        title: "LVL 3: DELIMITERS & REF",
+        dist: 500, wind: 1.2, req: 2, type: "NORMAL",
+        desc: "PRECISIONE CHIRURGICA. In GSheets o Docs, cita esplicitamente CELLE (es. A1:C10) o PARAGRAFI per azzerare le allucinazioni.",
+        code: "PROMPT:\n'Analizza SOLO i dati nel Foglio1!A1:B20 racchiusi tra ###'\n\n###\n[Incolla range celle]\n###\n'Calcola il totale riferendoti alla Cella B18.'"
+    },
+    {
+        title: "LVL 4: KEYWORDS",
+        dist: 700, wind: 0.5, req: 2, type: "NORMAL",
+        desc: "PARLA LA LINGUA DEL SISTEMA. Usa le KEYWORDS per i formati: [TABLE], [SCRIPT], [JSON] o [BULLET POINTS].",
+        code: "PROMPT:\n'Analizza i feedback fornitori e genera:'\n\n1. Una [TABLE] con colonne: SKU, Problema, Urgenza.\n2. Uno [PYTHON SCRIPT] per generare il grafico dei resi."
+    },
+    {
+        title: "LVL 5: SUPER SLAM DUNK",
+        dist: 300, wind: 0, req: 1, type: "DUNK",
+        desc: "IL COLPO FINALE. Hai la teoria, hai la precisione. Ora schiaccia ogni dubbio operativo. Premi [INVIO].",
+        code: "SYSTEM STATUS: UNLOCKED\n> EXECUTE: FINAL_SLAM_DUNK()\n> PREMI [INVIO] PER VOLARE A CANESTRO."
+    }
+];
+
+// --- 3. AUDIO ENGINE (PROCEDURAL SYNTH) ---
+const AudioSynth = {
+    ctx: null,
+    master: null,
     init() {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        this.ctx = new AudioContext();
+        const AC = window.AudioContext || window.webkitAudioContext;
+        this.ctx = new AC();
         this.master = this.ctx.createGain();
         this.master.gain.value = 0.2;
         this.master.connect(this.ctx.destination);
     },
-    play(type, freq, startVol, dur, slide=0) {
+    play(type, freq, vol, dur, slide=0) {
         if(!this.ctx) return;
-        const o = this.ctx.createOscillator(); const g = this.ctx.createGain();
-        o.type = type; o.frequency.setValueAtTime(freq, this.ctx.currentTime);
-        if(slide) o.frequency.linearRampToValueAtTime(freq+slide, this.ctx.currentTime+dur);
-        g.gain.setValueAtTime(startVol, this.ctx.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime+dur);
-        o.connect(g); g.connect(this.master); o.start(); o.stop(this.ctx.currentTime+dur);
+        const o = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        o.type = type;
+        o.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        if(slide) o.frequency.linearRampToValueAtTime(freq + slide, this.ctx.currentTime + dur);
+        g.gain.setValueAtTime(vol, this.ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + dur);
+        o.connect(g); g.connect(this.master);
+        o.start(); o.stop(this.ctx.currentTime + dur);
     },
-    sfxMove() { this.play('triangle', 300, 0.05, 0.1); },
-    sfxCharge(p) { this.play('sawtooth', 200+p*2, 0.05, 0.1); },
-    sfxShoot() { this.play('square', 200, 0.2, 0.3, -50); },
-    sfxJump() { this.play('square', 150, 0.2, 0.3, 200); }, // Pitch slide up
-    sfxBounce() { this.play('square', 100, 0.2, 0.1); },
-    sfxSwish() { this.play('sine', 800, 0.1, 0.3); this.play('sine', 1200, 0.1, 0.3); },
-    sfxDunk() { // Boom sound
-        this.play('square', 80, 0.6, 0.6, -40);
-        this.play('sawtooth', 40, 0.6, 0.9);
+    sfxAim() { this.play('triangle', 350, 0.05, 0.1); },
+    sfxPower(p) { this.play('sawtooth', 200 + p*2, 0.05, 0.1); },
+    sfxShoot() { this.play('square', 250, 0.2, 0.3, -80); },
+    sfxJump() { this.play('square', 180, 0.2, 0.4, 300); },
+    sfxDunk() { this.play('sawtooth', 60, 0.6, 0.6, -30); this.playNoise(0.6); },
+    sfxSwish() { this.play('sine', 900, 0.1, 0.4); this.playNoise(0.3); },
+    playNoise(dur) {
+        if(!this.ctx) return;
+        const bSize = this.ctx.sampleRate * dur;
+        const b = this.ctx.createBuffer(1, bSize, this.ctx.sampleRate);
+        const d = b.getChannelData(0);
+        for(let i=0; i<bSize; i++) d[i] = Math.random()*2-1;
+        const src = this.ctx.createBufferSource(); src.buffer = b;
+        const g = this.ctx.createGain(); g.gain.value = 0.1;
+        src.connect(g); g.connect(this.master);
+        src.start();
     }
 };
 
-// --- ASSETS ---
-const Assets = {
-    zally: new Image(), loaded: false,
-    init() {
-        this.zally.src = 'zally_basket.png';
-        this.zally.onload = () => { this.loaded = true; };
+// --- 4. GRAFICA & PARTICELLE ---
+class Particle {
+    constructor(x, y, type) {
+        this.pos = new Vec2(x, y);
+        this.vel = new Vec2(RNG.float(-6, 6), RNG.float(-6, 6));
+        this.life = 1.0;
+        this.type = type;
+        this.color = Math.random() > 0.5 ? '#ff6900' : '#fff';
+        this.decay = RNG.float(0.02, 0.04);
     }
-};
+    update() {
+        this.pos.add(this.vel);
+        this.vel.y += 0.2; // Gravity
+        this.life -= this.decay;
+    }
+    draw(ctx) {
+        ctx.globalAlpha = this.life;
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.pos.x, this.pos.y, 5, 5);
+        ctx.globalAlpha = 1.0;
+    }
+}
 
-// --- ENTITIES ---
+// --- 5. ENTITÀ DI GIOCO ---
 class Player {
     constructor() {
-        this.pos = new Vector(100, CONFIG.groundY);
-        this.vel = new Vector(0,0);
-        this.width = 80; this.height = 100;
+        this.pos = new Vec2(100, 650);
+        this.vel = new Vec2(0, 0);
+        this.width = 80;
+        this.height = 100;
         this.state = 'IDLE'; // IDLE, JUMP, SUPER_DUNK
+        this.sprite = new Image();
+        this.sprite.src = 'zally_basket.png';
+        this.loaded = false;
+        this.sprite.onload = () => { this.loaded = true; };
     }
-    
+
+    reset(x) {
+        this.pos.x = x;
+        this.pos.y = 650;
+        this.vel.mult(0);
+        this.state = 'IDLE';
+    }
+
+    jump() {
+        if(this.state === 'IDLE') {
+            this.state = 'JUMP';
+            this.vel.y = -13;
+            AudioSynth.sfxJump();
+        }
+    }
+
     update() {
-        // SUPER DUNK PHYSICS (No running, just flying)
-        if (this.state === 'SUPER_DUNK') {
+        // Fisica Salto/Dunk
+        if(this.state !== 'IDLE') {
             this.vel.y += CONFIG.gravity;
             this.pos.add(this.vel);
             
-            // Check for Dunk Hit
-            if(this.pos.y < CONFIG.physics.hoopY && this.pos.x >= CONFIG.physics.hoopX - 50) {
-                return 'SLAM';
+            // Slam Dunk Logic
+            if(this.state === 'SUPER_DUNK') {
+                if(this.pos.y < 250 && this.pos.x > 800) return 'DUNK_HIT';
             }
-            // Fail safe (should not happen with calculated trajectory)
-            if(this.pos.y > CONFIG.groundY) {
-                this.pos.y = CONFIG.groundY; this.state='IDLE';
+
+            if(this.pos.y >= 650) {
+                this.pos.y = 650;
+                this.vel.y = 0;
+                this.vel.x = 0;
+                this.state = 'IDLE';
             }
-        }
-        else if (this.pos.y < CONFIG.groundY) { // Normal Jump physics
-            this.vel.y += CONFIG.gravity;
-            this.pos.y += this.vel.y;
-            if(this.pos.y >= CONFIG.groundY) { this.pos.y = CONFIG.groundY; this.vel.y = 0; }
         }
         return null;
     }
 
-    draw(ctx, holdBall) {
-        const x = this.pos.x; const y = this.pos.y - this.height;
+    draw(ctx, ballActive) {
+        const x = this.pos.x;
+        const y = this.pos.y - this.height;
         ctx.save();
         
-        if(Assets.loaded) {
-            ctx.translate(x+40, y+50);
-            if(this.state === 'SUPER_DUNK') ctx.rotate(-0.3); // Lean forward
-            ctx.drawImage(Assets.zally, -40, -50, this.width, this.height);
-        } else {
-            // Pixel Art Fallback
-            ctx.translate(x+40, y+50);
-            if(this.state === 'SUPER_DUNK') ctx.rotate(-0.3);
-            
-            // Legs
-            ctx.fillStyle = '#111';
-            // If flying, legs tucked
-            if(this.state === 'SUPER_DUNK') {
-                 ctx.fillRect(-25, 10, 15, 30); ctx.fillRect(0, 15, 15, 25);
-            } else {
-                 ctx.fillRect(-20, 20, 15, 40); ctx.fillRect(5, 20, 15, 40);
-            }
+        // Shadow
+        ctx.fillStyle = 'rgba(0,0,0,0.4)';
+        const shadowS = 1 - (650 - this.pos.y)/300;
+        ctx.beginPath();
+        ctx.ellipse(x+40, 660, 30*shadowS, 8*shadowS, 0, 0, Math.PI*2);
+        ctx.fill();
 
-            // Body
-            ctx.fillStyle = CONFIG.colors.orange; ctx.fillRect(-20, -30, 40, 50);
-            // Head
-            ctx.fillStyle = '#ffccaa'; ctx.fillRect(-15, -60, 30, 30);
-            // Cap
-            ctx.fillStyle = '#111'; ctx.fillRect(-15, -65, 30, 10); ctx.fillRect(5, -65, 20, 5);
-            // Arms
-            if(holdBall) { // Arms up holding ball
-                ctx.fillStyle = CONFIG.colors.orange; ctx.fillRect(10, -30, 30, 10);
-            }
+        if(this.loaded) {
+            ctx.translate(x+40, y+50);
+            if(this.state === 'SUPER_DUNK') ctx.rotate(0.4); // Inclinazione volo
+            ctx.drawImage(this.sprite, -40, -50, 80, 100);
+        } else {
+            // Fallback Pixel Art
+            ctx.fillStyle = '#ff6900';
+            ctx.fillRect(x+15, y+20, 50, 50);
+            ctx.fillStyle = '#ffccaa';
+            ctx.fillRect(x+25, y-10, 30, 30);
         }
+
+        // Palla in mano se non è in volo
+        if(!ballActive) {
+            ctx.fillStyle = '#ff6900';
+            const bx = this.state === 'SUPER_DUNK' ? x + 75 : x + 65;
+            const by = this.state === 'SUPER_DUNK' ? y + 20 : y + 30;
+            ctx.beginPath();
+            ctx.arc(bx, by, 14, 0, Math.PI*2);
+            ctx.fill();
+            ctx.strokeStyle = '#000'; ctx.stroke();
+        }
+
         ctx.restore();
     }
 }
 
-// --- ENGINE ---
+class Hoop {
+    constructor() {
+        this.pos = new Vec2(850, 250);
+    }
+    draw(ctx) {
+        const x = this.pos.x; const y = this.pos.y;
+        
+        // Palo
+        ctx.fillStyle = '#333';
+        ctx.fillRect(x+60, y, 15, 650-y);
+        
+        // Tabellone Pro (Glass effect)
+        ctx.fillStyle = 'rgba(200, 230, 255, 0.3)';
+        ctx.fillRect(x+50, y-100, 8, 120);
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(x+50, y-100, 8, 120);
+        
+        // Orange square target
+        ctx.strokeStyle = '#ff6900';
+        ctx.strokeRect(x+52, y-70, 4, 40);
+
+        // Ferro (Rim)
+        ctx.fillStyle = '#ff6900';
+        ctx.fillRect(x, y, 50, 6);
+
+        // Rete procedurale
+        ctx.strokeStyle = '#ddd';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        for(let i=0; i<=50; i+=10) {
+            ctx.moveTo(x+i, y+6);
+            ctx.lineTo(x+25, y+45);
+        }
+        ctx.stroke();
+    }
+}
+
+// --- 6. GAME ENGINE ---
 const Game = {
-    canvas:null, ctx:null,
+    canvas: null, ctx: null,
     state: 'MENU', levelIdx: 0, score: 0, shotsMade: 0,
-    player: null, ball: {pos:new Vector(0,0), vel:new Vector(0,0), active:false},
+    player: null, hoop: null, ball: {pos:new Vec2(0,0), vel:new Vec2(0,0), active:false},
     keys: {left:false, right:false, space:false, enter:false},
-    angle:45, power:0, wind:0,
-    particles: [], floaters: [], shake: 0, crowd: [],
+    angle: 45, power: 0, wind: 0, particles: [], floaters: [], crowd: [], shake: 0,
 
     init() {
         this.canvas = document.getElementById('gameCanvas');
         this.ctx = this.canvas.getContext('2d');
-        AudioSys.init(); Assets.init();
+        AudioSynth.init();
         this.player = new Player();
+        this.hoop = new Hoop();
         
-        // Generate Crowd data
-        for(let i=0; i<50; i++) this.crowd.push({
-            color: CONFIG.colors.crowd[Math.floor(Math.random()*CONFIG.colors.crowd.length)],
-            offset: Math.random() * 10
+        // Popola crowd
+        for(let i=0; i<60; i++) this.crowd.push({
+            c: CONFIG.colors.crowd[RNG.int(0,5)],
+            off: RNG.float(0, 10),
+            id: i
         });
 
         document.getElementById('screen-start').style.display = 'none';
         
-        // Event Listeners
         window.addEventListener('keydown', e => this.onKey(e, true));
         window.addEventListener('keyup', e => this.onKey(e, false));
         
@@ -384,9 +539,8 @@ const Game = {
     onKey(e, isDown) {
         if(e.code === 'ArrowLeft') this.keys.left = isDown;
         if(e.code === 'ArrowRight') this.keys.right = isDown;
-        if(e.code === 'Enter' && isDown) {
-            if(this.state === 'DUNK_READY') this.startSuperDunk();
-        }
+        if(e.code === 'Enter' && isDown && this.state === 'DUNK_READY') this.startSuperDunk();
+        
         if(e.code === 'Space') {
             if(this.state === 'PLAY') {
                 if(isDown && !this.keys.space) this.power = 0;
@@ -405,121 +559,96 @@ const Game = {
     },
 
     resetShot() {
-        const lvl = CONFIG.levels[this.levelIdx];
-        
-        if(lvl.type === 'DUNK') {
-            this.state = 'DUNK_READY';
-            this.player.pos.x = 150; // Start closer for Dunk
-            this.player.state = 'IDLE';
-            document.getElementById('next-btn').innerText = "FINISH";
-        } else {
-            this.state = 'PLAY';
-            this.player.pos.x = CONFIG.physics.hoopX - lvl.dist;
-        }
-        
+        const lvl = DATABASE[this.levelIdx];
         this.ball.active = false;
         this.power = 0;
         this.angle = 45;
-        this.wind = lvl.wind ? Utils.rand(-lvl.wind, lvl.wind) : 0;
-        this.player.pos.y = CONFIG.groundY;
-        this.player.vel.y = 0;
+        this.wind = lvl.wind ? RNG.float(-lvl.wind, lvl.wind) : 0;
+        
+        if(lvl.type === 'DUNK') {
+            this.state = 'DUNK_READY';
+            this.player.reset(200);
+            document.getElementById('next-btn').innerText = "VITTORIA!";
+        } else {
+            this.state = 'PLAY';
+            this.player.reset(850 - lvl.dist);
+        }
+    },
+
+    shoot() {
+        this.state = 'FLIGHT';
+        this.player.jump();
+        this.ball.active = true;
+        AudioSynth.sfxShoot();
+        
+        const rad = -(this.angle * Math.PI) / 180;
+        const spd = (this.power / 100) * 20 + 12;
+        this.ball.pos = new Vec2(this.player.pos.x + 65, this.player.pos.y - 65);
+        this.ball.vel = new Vec2(Math.cos(rad) * spd, Math.sin(rad) * spd - 3);
     },
 
     startSuperDunk() {
         this.state = 'DUNK_ANIMATION';
         this.player.state = 'SUPER_DUNK';
-        AudioSys.sfxJump(); 
+        AudioSynth.sfxJump();
         
-        // Calculate physics to hit the hoop exactly
-        // Distance X to hoop
-        const dist = CONFIG.physics.hoopX - this.player.pos.x - 50;
-        const frames = 50; // Time to arrive
-        
-        this.player.vel.x = dist / frames; 
-        this.player.vel.y = -18; // Massive Jump
-    },
-
-    shoot() {
-        this.state = 'FLIGHT';
-        this.player.vel.y = -12; // Jump
-        this.ball.active = true;
-        AudioSys.sfxShoot();
-        
-        const rad = (this.angle * Math.PI)/180;
-        const speed = (this.power/100)*20 + 12;
-        this.ball.pos = new Vector(this.player.pos.x+60, this.player.pos.y-40);
-        this.ball.vel = new Vector(Math.cos(rad)*speed, -Math.sin(rad)*speed);
-        this.ball.vel.y -= 2; // Jump lift
+        // Calcolo traiettoria perfetta per schiacciata
+        const targetX = 850;
+        const frames = 55;
+        this.player.vel.x = (targetX - this.player.pos.x) / frames;
+        this.player.vel.y = -18; // Super Slancio
     },
 
     update() {
-        // --- PLAYER LOGIC ---
-        const dunkStatus = this.player.update();
+        const playerEvent = this.player.update();
         
-        if(this.state === 'DUNK_ANIMATION') {
-            // Ball sticks to player hand
-            this.ball.pos.x = this.player.pos.x + 60;
-            this.ball.pos.y = this.player.pos.y - 70;
-            
-            if(dunkStatus === 'SLAM') {
-                this.successDunk();
-            }
+        if(this.state === 'DUNK_ANIMATION' && playerEvent === 'DUNK_HIT') {
+            this.successDunk();
         }
 
-        // --- NORMAL PLAY INPUT ---
         if(this.state === 'PLAY') {
-            if(this.keys.left && this.angle < 85) { this.angle+=1; AudioSys.sfxMove(); }
-            if(this.keys.right && this.angle > 10) { this.angle-=1; AudioSys.sfxMove(); }
+            if(this.keys.left && this.angle < 85) { this.angle++; AudioSynth.sfxAim(); }
+            if(this.keys.right && this.angle > 10) { this.angle--; AudioSynth.sfxAim(); }
             if(this.keys.space) {
-                this.power += 1.5;
-                if(this.power > 100) this.power = 100;
-                if(Math.floor(this.power)%10===0) AudioSys.sfxCharge(this.power);
+                this.power += 1.5; if(this.power > 100) this.power = 100;
+                if(Math.floor(this.power)%10 === 0) AudioSynth.sfxPower(this.power);
             }
         }
 
-        // --- BALL PHYSICS (NORMAL SHOT) ---
         if(this.state === 'FLIGHT' && this.ball.active) {
             this.ball.vel.y += CONFIG.gravity;
             this.ball.vel.x *= CONFIG.physics.drag;
             this.ball.pos.add(this.ball.vel);
             this.ball.pos.x += this.wind;
 
-            // Hoop Logic
-            const dx = this.ball.pos.x - (CONFIG.physics.hoopX + 25);
-            const dy = this.ball.pos.y - CONFIG.physics.hoopY;
-            const dist = Math.sqrt(dx*dx + dy*dy);
-
+            const dist = Vec2.dist(this.ball.pos, new Vec2(875, 250));
             if(dist < 40 && this.ball.vel.y > 0) this.success();
             
-            // Floor / Miss
-            if(this.ball.pos.y > CONFIG.groundY) {
-                this.ball.pos.y = CONFIG.groundY;
-                this.ball.vel.y *= -0.7;
-                AudioSys.sfxBounce();
+            if(this.ball.pos.y > 650) {
+                this.ball.pos.y = 650; this.ball.vel.y *= -0.6; AudioSynth.sfxBounce();
                 if(Math.abs(this.ball.vel.y) < 1) this.fail("CORTO");
             }
             if(this.ball.pos.x > 1024) this.fail("AIRBALL");
         }
 
-        // --- FX ---
         this.particles.forEach((p,i) => { p.update(); if(p.life<=0) this.particles.splice(i,1); });
-        this.floaters.forEach((f,i) => { f.update(); if(f.life<=0) this.floaters.splice(i,1); });
-        if(this.shake>0) { this.shake *= 0.9; if(this.shake<0.5) this.shake=0; }
+        this.floaters.forEach((f,i) => { f.y--; f.life--; if(f.life<=0) this.floaters.splice(i,1); });
+        if(this.shake > 0) { this.shake *= 0.9; if(this.shake<0.5) this.shake=0; }
     },
 
     successDunk() {
         this.state = 'ANIMATE';
-        this.score += 1000;
-        this.shotsMade++;
-        this.shake = 20; // Massive shake
-        AudioSys.sfxDunk();
+        this.score += 1500;
+        this.shake = 25;
+        AudioSynth.sfxDunk();
         
-        // Ball slam down
+        // Palla schiacciata violentemente giù
         this.ball.active = true;
-        this.ball.vel = new Vector(0, 15);
+        this.ball.pos = new Vec2(875, 260);
+        this.ball.vel = new Vec2(0, 18);
         
-        for(let i=0; i<50; i++) this.particles.push(new Particle(this.ball.pos.x, this.ball.pos.y, 'spark'));
-        this.floaters.push(new Floater("SLAM DUNK!!", this.ball.pos.x, this.ball.pos.y-100, CONFIG.colors.orange));
+        for(let i=0; i<60; i++) this.particles.push(new Particle(875, 250, 'spark'));
+        this.floaters.push({text:"SLAM DUNK!!", x:750, y:200, color:CONFIG.colors.orange, life:80});
         
         setTimeout(() => this.showLevelUp(), 2000);
     },
@@ -527,17 +656,14 @@ const Game = {
     success() {
         if(this.state === 'ANIMATE') return;
         this.state = 'ANIMATE';
-        this.score += 500;
-        this.shotsMade++;
-        AudioSys.sfxSwish();
-        this.shake = 5;
-        this.floaters.push(new Floater("SWISH!", CONFIG.physics.hoopX, CONFIG.physics.hoopY-50, '#39ff14'));
-        
-        for(let i=0; i<20; i++) this.particles.push(new Particle(CONFIG.physics.hoopX+25, CONFIG.physics.hoopY, 'confetti'));
+        this.score += 500; this.shotsMade++;
+        this.shake = 8; AudioSynth.sfxSwish();
+        this.floaters.push({text:"SWISH!", x:820, y:200, color:'#39ff14', life:60});
+        for(let i=0; i<30; i++) this.particles.push(new Particle(875, 250, 'confetti'));
         
         this.updateHUD();
         setTimeout(() => {
-            if(this.shotsMade >= CONFIG.levels[this.levelIdx].req) this.showLevelUp();
+            if(this.shotsMade >= DATABASE[this.levelIdx].req) this.showLevelUp();
             else this.resetShot();
         }, 1500);
     },
@@ -545,155 +671,99 @@ const Game = {
     fail(txt) {
         if(this.state === 'ANIMATE') return;
         this.state = 'ANIMATE';
-        AudioSys.sfxMiss();
-        this.floaters.push(new Floater(txt, this.ball.pos.x, this.ball.pos.y-50, '#f00'));
-        setTimeout(() => this.resetShot(), 1000);
+        AudioSynth.sfxMiss();
+        this.floaters.push({text:txt, x:this.ball.pos.x, y:this.ball.pos.y-50, color:'#f00', life:50});
+        setTimeout(() => this.resetShot(), 1200);
     },
 
     nextLevel() {
-        if(this.levelIdx + 1 < CONFIG.levels.length) {
-            this.startLevel(this.levelIdx + 1);
-        } else {
+        if(this.levelIdx + 1 < DATABASE.length) this.startLevel(this.levelIdx + 1);
+        else {
             document.getElementById('screen-level').style.display = 'none';
             document.getElementById('screen-victory').style.display = 'flex';
-        }
-    },
-
-    // --- DRAW ---
-    draw() {
-        this.ctx.save();
-        if(this.shake>0) this.ctx.translate(Math.random()*this.shake - this.shake/2, Math.random()*this.shake - this.shake/2);
-        
-        // Sky
-        let g = this.ctx.createLinearGradient(0,0,0,768);
-        g.addColorStop(0, CONFIG.colors.skyTop); g.addColorStop(1, CONFIG.colors.skyBot);
-        this.ctx.fillStyle = g; this.ctx.fillRect(0,0,1024,768);
-
-        // Buildings
-        this.ctx.fillStyle = '#0f0f1a';
-        for(let i=0; i<15; i++) {
-            let h = 100 + Math.sin(i*123)*80;
-            this.ctx.fillRect(i*70, CONFIG.groundY-h, 60, h);
-            this.ctx.fillStyle = Math.random()>0.95 ? CONFIG.colors.orange : '#1a1a2e';
-            this.ctx.fillRect(i*70+10, CONFIG.groundY-h+10, 5, 5);
-            this.ctx.fillStyle = '#0f0f1a';
-        }
-
-        // CROWD (BLEACHERS)
-        this.drawCrowd();
-
-        // Floor
-        this.ctx.fillStyle = '#222'; this.ctx.fillRect(0, CONFIG.groundY, 1024, 118);
-        this.ctx.strokeStyle = CONFIG.colors.orange; this.ctx.lineWidth = 4;
-        this.ctx.beginPath(); this.ctx.moveTo(0,CONFIG.groundY); this.ctx.lineTo(1024,CONFIG.groundY); this.ctx.stroke();
-
-        // Entities
-        this.drawHoop();
-        this.player.draw(this.ctx, (this.state === 'DUNK_ANIMATION' || (!this.ball.active && this.state !== 'PLAY')));
-        
-        // Ball
-        if(this.ball.active || this.state === 'DUNK_ANIMATION') {
-            this.ctx.fillStyle = CONFIG.colors.orange;
-            this.ctx.beginPath(); this.ctx.arc(this.ball.pos.x, this.ball.pos.y, 14, 0, Math.PI*2); this.ctx.fill();
-            this.ctx.strokeStyle = '#000'; this.ctx.lineWidth=2; this.ctx.stroke();
-        }
-
-        // UI Aim
-        if(this.state === 'PLAY' && CONFIG.levels[this.levelIdx].type !== 'DUNK') {
-            const ax = this.player.pos.x+40; const ay = this.player.pos.y-60;
-            const r = -(this.angle*Math.PI)/180;
-            this.ctx.strokeStyle = '#fff'; this.ctx.lineWidth = 2; this.ctx.setLineDash([5,5]);
-            this.ctx.beginPath(); this.ctx.moveTo(ax,ay); this.ctx.lineTo(ax+Math.cos(r)*100, ay+Math.sin(r)*100); this.ctx.stroke(); this.ctx.setLineDash([]);
-            // Power
-            this.ctx.fillStyle = '#fff'; this.ctx.fillRect(ax-30, ay-50, 60, 10);
-            this.ctx.fillStyle = this.power>90 ? '#f00' : CONFIG.colors.orange;
-            this.ctx.fillRect(ax-30, ay-50, (this.power/100)*60, 10);
-        }
-
-        // Dunk Prompt
-        if(this.state === 'DUNK_READY') {
-            this.ctx.fillStyle = '#fff'; this.ctx.font = "20px 'Press Start 2P'";
-            this.ctx.fillText("PREMI [INVIO] PER SCHIACCIARE!", this.player.pos.x - 50, this.player.pos.y - 120);
-        }
-
-        // FX
-        this.particles.forEach(p => p.draw(this.ctx));
-        this.floaters.forEach(f => f.draw(this.ctx));
-
-        this.ctx.restore();
-    },
-
-    drawHoop() {
-        const x = CONFIG.physics.hoopX; const y = CONFIG.physics.hoopY;
-        this.ctx.fillStyle = '#555'; this.ctx.fillRect(x+60, y, 15, CONFIG.groundY-y); // Pole
-        
-        // Improved Backboard
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)'; // Glass effect
-        this.ctx.fillRect(x+50, y-90, 5, 100);
-        this.ctx.strokeStyle = '#fff'; this.ctx.lineWidth = 2; this.ctx.strokeRect(x+50, y-90, 5, 100);
-        
-        this.ctx.fillStyle = CONFIG.colors.orange; this.ctx.fillRect(x+52, y-70, 3, 40); // Target
-
-        // Rim
-        this.ctx.fillStyle = CONFIG.colors.orange; this.ctx.fillRect(x, y, 50, 6);
-
-        // Improved Net
-        this.ctx.strokeStyle='#ccc'; this.ctx.lineWidth=1; this.ctx.beginPath();
-        for(let i=0; i<5; i++) {
-            let startX = x + (i*10);
-            this.ctx.moveTo(startX, y+6);
-            this.ctx.lineTo(startX+5, y+20);
-            this.ctx.lineTo(startX, y+40);
-            this.ctx.lineTo(startX-5, y+20);
-            this.ctx.lineTo(startX, y+6);
-        }
-        this.ctx.stroke();
-    },
-
-    drawCrowd() {
-        this.ctx.fillStyle = '#333'; this.ctx.fillRect(0, 550, 1024, 100); // Bleachers
-        for(let i=0; i<this.crowd.length; i++) {
-            let c = this.crowd[i];
-            let jp = (this.state==='ANIMATE') ? Math.sin(Date.now()/50 + i)*15 : 0;
-            let cx = i * 20;
-            let cy = 600 - c.offset - jp;
-            
-            this.ctx.fillStyle = c.color;
-            this.ctx.fillRect(cx, cy, 15, 30); // Body
-            this.ctx.fillStyle = '#ffccaa'; // Face
-            this.ctx.fillRect(cx+2, cy-10, 11, 10);
-            
-            // Arms cheering if animating
-            if(this.state==='ANIMATE') {
-                this.ctx.fillStyle = c.color;
-                this.ctx.fillRect(cx-5, cy-15, 5, 20);
-                this.ctx.fillRect(cx+15, cy-15, 5, 20);
-            }
         }
     },
 
     updateHUD() {
         document.getElementById('scoreEl').innerText = "SCORE: " + this.score.toString().padStart(4,'0');
-        document.getElementById('levelEl').innerText = CONFIG.levels[this.levelIdx].title;
+        document.getElementById('levelEl').innerText = DATABASE[this.levelIdx].title;
     },
 
     showLevelUp() {
-        const lvl = CONFIG.levels[this.levelIdx];
+        const lvl = DATABASE[this.levelIdx];
         document.getElementById('lvl-desc').innerText = lvl.desc;
         document.getElementById('lvl-code').innerText = lvl.code;
         document.getElementById('screen-level').style.display = 'flex';
     },
 
-    nextLevel() {
-        if(this.levelIdx + 1 < CONFIG.levels.length) {
-            this.startLevel(this.levelIdx + 1);
-        } else {
-            document.getElementById('screen-level').style.display = 'none';
-            document.getElementById('screen-victory').style.display = 'flex';
-        }
-    },
+    draw() {
+        this.ctx.save();
+        if(this.shake>0) this.ctx.translate(RNG.float(-this.shake, this.shake), RNG.float(-this.shake, this.shake));
+        
+        // 1. SKY PARALLAX
+        let sky = this.ctx.createLinearGradient(0,0,0,768);
+        sky.addColorStop(0, '#050510'); sky.addColorStop(1, '#151525');
+        this.ctx.fillStyle = sky; this.ctx.fillRect(0,0,1024,768);
 
-    restart() { this.score=0; this.startLevel(0); document.getElementById('screen-gameover').style.display='none'; },
+        // 2. CITY BUILDINGS
+        this.ctx.fillStyle = '#080815';
+        for(let i=0; i<18; i++) {
+            let h = 120 + Math.sin(i*132)*90;
+            this.ctx.fillRect(i*65, 650-h, 55, h);
+            if(Math.random()>0.97) { this.ctx.fillStyle = '#ff6900'; this.ctx.fillRect(i*65+10, 650-h+20, 5, 5); this.ctx.fillStyle='#080815'; }
+        }
+
+        // 3. CROWD & BLEACHERS
+        this.ctx.fillStyle = '#222'; this.ctx.fillRect(0, 550, 1024, 100);
+        this.crowd.forEach(f => {
+            let jp = (this.state === 'ANIMATE') ? Math.sin(Date.now()/60 + f.id)*12 : 0;
+            this.ctx.fillStyle = f.c;
+            this.ctx.fillRect(f.id*17, 600 - f.off - jp, 14, 25);
+            this.ctx.fillStyle = '#ffccaa'; this.ctx.fillRect(f.id*17+2, 600-f.off-jp-8, 10, 8);
+        });
+
+        // 4. FLOOR
+        this.ctx.fillStyle = '#151515'; this.ctx.fillRect(0, 650, 1024, 118);
+        this.ctx.strokeStyle = '#ff6900'; this.ctx.lineWidth = 5;
+        this.ctx.beginPath(); this.ctx.moveTo(0,650); this.ctx.lineTo(1024,650); this.ctx.stroke();
+
+        // 5. ENTITIES
+        this.hoop.draw(this.ctx);
+        // Zally (mostra palla in mano solo se non attiva o è schiacciata in mano)
+        const isBallInHand = !this.ball.active || this.state === 'DUNK_ANIMATION';
+        this.player.draw(this.ctx, isBallInHand);
+        
+        if(this.ball.active) {
+            this.ctx.fillStyle = '#ff6900';
+            this.ctx.beginPath(); this.ctx.arc(this.ball.pos.x, this.ball.pos.y, 14, 0, Math.PI*2); this.ctx.fill();
+            this.ctx.strokeStyle = '#000'; this.ctx.lineWidth=2; this.ctx.stroke();
+        }
+
+        // UI MIRA (Solo livelli normali)
+        if(this.state === 'PLAY' && DATABASE[this.levelIdx].type !== 'DUNK') {
+            const ax = this.player.pos.x+55; const ay = this.player.pos.y-75;
+            const r = -(this.angle*Math.PI)/180;
+            this.ctx.strokeStyle = '#fff'; this.ctx.lineWidth = 2; this.ctx.setLineDash([5,5]);
+            this.ctx.beginPath(); this.ctx.moveTo(ax,ay); this.ctx.lineTo(ax+Math.cos(r)*110, ay+Math.sin(r)*110); this.ctx.stroke(); this.ctx.setLineDash([]);
+            // Power
+            this.ctx.fillStyle = '#fff'; this.ctx.fillRect(ax-30, ay-55, 60, 10);
+            this.ctx.fillStyle = this.power>90 ? '#f00' : '#ff6900';
+            this.ctx.fillRect(ax-30, ay-55, (this.power/100)*60, 10);
+        }
+
+        if(this.state === 'DUNK_READY') {
+            this.ctx.fillStyle = '#fff'; this.ctx.font = "18px 'Press Start 2P'";
+            this.ctx.fillText("PREMI [INVIO] PER VOLARE!", 120, 480);
+        }
+
+        this.particles.forEach(p => p.draw(this.ctx));
+        this.floaters.forEach(f => {
+            this.ctx.fillStyle = f.color; this.ctx.font = "20px 'Press Start 2P'";
+            this.ctx.fillText(f.text, f.x, f.y);
+        });
+
+        this.ctx.restore();
+    },
 
     loop() { this.update(); this.draw(); requestAnimationFrame(this.loop.bind(this)); }
 };
