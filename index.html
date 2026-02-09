@@ -3,19 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZALLY'S PROMPT HOOPS: ULTIMATE ENGINE</title>
+    <title>ZALLY'S HOOPS: ULTIMATE OPS ENGINE</title>
     <style>
-        /* --- IMPORTAZIONE FONT RETRO --- */
+        /* --- IMPORTAZIONE ASSET FONT --- */
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
 
         :root {
             --zalando-orange: #ff6900;
-            --zalando-dark: #1a1a1a;
+            --zalando-dark: #111;
             --neon-green: #39ff14;
             --neon-blue: #00ffff;
-            --crt-scanline: rgba(18, 16, 16, 0.2);
-            --cabinet-bezel: #111;
+            --crt-scanline: rgba(18, 16, 16, 0.15);
         }
 
         body {
@@ -37,16 +36,16 @@
             width: 1024px;
             height: 768px;
             background: #000;
-            border: 20px solid var(--cabinet-bezel);
+            border: 20px solid #222;
             border-bottom-width: 60px;
-            border-radius: 20px;
+            border-radius: 10px;
             box-shadow: 
-                0 0 0 5px var(--zalando-orange),
-                0 0 100px rgba(255, 105, 0, 0.3);
+                0 0 0 4px var(--zalando-orange),
+                0 0 80px rgba(255, 105, 0, 0.2);
             overflow: hidden;
         }
 
-        /* EFFETTO CRT / SCANLINES / VIGNETTE */
+        /* EFFETTO CRT (Scanlines & Vignette) */
         #crt-overlay {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -56,24 +55,24 @@
             background-size: 100% 3px, 3px 100%;
             pointer-events: none;
             z-index: 100;
-            border-radius: 10px;
+            border-radius: 4px;
             box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
             animation: flicker 0.15s infinite;
         }
 
         @keyframes flicker {
-            0% { opacity: 0.97; }
-            50% { opacity: 0.94; }
-            100% { opacity: 0.98; }
+            0% { opacity: 0.98; }
+            50% { opacity: 0.95; }
+            100% { opacity: 0.99; }
         }
 
         canvas { 
             display: block; 
-            background-color: #000;
-            image-rendering: pixelated; /* Fondamentale per la Pixel Art nitida */
+            background-color: #080808;
+            image-rendering: pixelated; 
         }
 
-        /* UI LAYER (HUD) */
+        /* UI LAYER */
         .ui-layer {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -89,19 +88,19 @@
             justify-content: space-between;
             padding: 30px;
             text-transform: uppercase;
-            text-shadow: 4px 4px 0 #000;
-            font-size: 24px;
+            text-shadow: 3px 3px 0 #000;
+            font-size: 20px;
             letter-spacing: 2px;
         }
 
         .hud-score { color: var(--zalando-orange); }
         .hud-level { color: var(--neon-blue); }
 
-        /* SCHERMATE MODALI (MENU, LEVEL UP) */
+        /* SCHERMATE MODALI */
         .screen-modal {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.92);
+            background: rgba(0,0,0,0.94);
             z-index: 200;
             display: flex; 
             flex-direction: column;
@@ -109,41 +108,40 @@
             justify-content: center;
             text-align: center;
             pointer-events: auto;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(4px);
         }
 
         h1 { 
             color: var(--zalando-orange); 
-            font-size: 60px; 
+            font-size: 50px; 
             margin-bottom: 20px; 
             text-shadow: 5px 5px 0px #fff;
-            line-height: 1.2;
-            letter-spacing: -2px;
+            line-height: 1.3;
         }
 
         .subtitle {
-            font-family: 'VT323', monospace;
-            font-size: 28px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 24px;
             color: var(--neon-green);
-            margin-bottom: 40px;
-            line-height: 1.5;
+            margin-bottom: 30px;
             max-width: 800px;
+            line-height: 1.5;
             text-shadow: 0 0 10px var(--neon-green);
         }
 
         .code-terminal {
-            background: #0f0f0f;
+            background: #111;
             border: 2px solid var(--zalando-orange);
-            border-left-width: 10px;
+            border-left-width: 8px;
             color: #ddd;
-            font-family: 'VT323', monospace;
-            font-size: 22px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 20px;
             padding: 20px;
             margin: 20px;
-            width: 70%;
+            width: 75%;
             text-align: left;
             white-space: pre-wrap;
-            box-shadow: 0 0 30px rgba(255, 105, 0, 0.2);
+            box-shadow: 0 0 30px rgba(255, 105, 0, 0.15);
         }
 
         /* BOX CONTROLLI */
@@ -152,7 +150,7 @@
             padding: 20px 40px;
             margin-top: 20px;
             color: #aaa;
-            font-size: 14px;
+            font-size: 12px;
             line-height: 2.5;
             background: rgba(255,255,255,0.05);
         }
@@ -160,27 +158,26 @@
         .key-cap {
             background: #ccc;
             color: #000;
-            padding: 5px 12px;
-            border-radius: 4px;
-            border-bottom: 4px solid #888;
-            margin: 0 8px;
+            padding: 4px 10px;
+            border-radius: 3px;
+            border-bottom: 3px solid #888;
+            margin: 0 6px;
             font-weight: bold;
             display: inline-block;
         }
 
-        /* BOTTONE START */
         button.arcade-btn {
             background: var(--zalando-orange);
             color: #fff;
             border: 4px solid #fff;
-            padding: 25px 60px;
+            padding: 20px 50px;
             font-family: 'Press Start 2P', cursive;
-            font-size: 24px;
+            font-size: 20px;
             cursor: pointer;
-            margin-top: 40px;
+            margin-top: 30px;
             text-transform: uppercase;
-            transition: all 0.1s;
             box-shadow: 6px 6px 0px #fff;
+            transition: transform 0.1s;
         }
         
         button.arcade-btn:hover { 
@@ -202,47 +199,57 @@
     <div id="crt-overlay"></div>
     <canvas id="gameCanvas" width="1024" height="768"></canvas>
     
-    <!-- HUD IN GIOCO -->
+    <!-- HUD -->
     <div class="ui-layer">
         <div class="hud-bar">
-            <div class="hud-score" id="scoreEl">SCORE: 0000</div>
-            <div class="hud-level" id="levelEl">LEVEL 1</div>
+            <div class="hud-score" id="scoreEl">PUNTI: 0000</div>
+            <div class="hud-level" id="levelEl">LIVELLO 1</div>
         </div>
-        <div style="padding: 20px; text-align: center; color: #666; font-size: 10px; letter-spacing: 2px;">
-            ZALANDO OPERATIONS // PROMPT ENGINE v.5.0
+        <div style="padding: 20px; text-align: center; color: #666; font-size: 10px; font-family: 'Share Tech Mono'; letter-spacing: 2px;">
+            ZALANDO OPS // GEMINI TRAINING UNIT v.6.0
         </div>
     </div>
 
-    <!-- SCHERMATA START -->
+    <!-- START SCREEN -->
     <div id="screen-start" class="screen-modal">
-        <h1>ZALLY'S HOOPS<br>ULTIMATE</h1>
+        <h1>ZALLY'S HOOPS<br>MASTER ENGINE</h1>
         <div class="subtitle">
             OPERATIONS TRAINING SIMULATION<br>
-            LEARN TO PROMPT LIKE A CHAMPION.
+            IMPARA L'ARTE DEL PROMPT ENGINEERING.
         </div>
         
         <div class="controls-box">
-            <div><span class="key-cap">⬅️</span> <span class="key-cap">➡️</span> MIRA (AIM)</div>
-            <div><span class="key-cap">SPACE (HOLD)</span> CARICA POTENZA</div>
-            <div><span class="key-cap">SPACE (RELEASE)</span> SALTA E TIRA!</div>
+            <div><span class="key-cap">⬅️</span> <span class="key-cap">➡️</span> MIRA (ANGOLO)</div>
+            <div><span class="key-cap">SPACE (TIENI)</span> CARICA POTENZA</div>
+            <div><span class="key-cap">SPACE (RILASCIA)</span> SALTA E TIRA!</div>
         </div>
 
         <button class="arcade-btn" onclick="Game.init()">INSERT COIN</button>
     </div>
 
-    <!-- SCHERMATA LEVEL UP -->
+    <!-- LEVEL UP SCREEN -->
     <div id="screen-level" class="screen-modal" style="display:none;">
-        <h1 style="color:var(--neon-green)">SWISH!</h1>
+        <h1 style="color:var(--neon-green)">CANESTRO!</h1>
         <p class="subtitle" id="lvl-desc">...</p>
         <div class="code-terminal" id="lvl-code">...</div>
-        <button class="arcade-btn" onclick="Game.nextLevel()">NEXT LEVEL</button>
+        <button class="arcade-btn" id="next-btn" onclick="Game.nextLevel()">PROSSIMO LIVELLO</button>
     </div>
     
-    <!-- SCHERMATA GAME OVER -->
-    <div id="screen-gameover" class="screen-modal" style="display:none;">
-        <h1 style="color:red">GAME OVER</h1>
-        <p class="subtitle">IL CAMPO DEL PROMPTING È DURO.<br>RITENTA E IMPARA.</p>
-        <button class="arcade-btn" onclick="Game.restart()">RETRY</button>
+    <!-- VICTORY SCREEN -->
+    <div id="screen-victory" class="screen-modal" style="display:none;">
+        <h1 style="color:#ffd700">🏆 MVP STATUS 🏆</h1>
+        <div class="subtitle" style="font-size:32px; color:#fff; max-width:900px;">
+            "NON HAI TIRATO A INDOVINARE.<br>HAI INGEGNERIZZATO IL SUCCESSO."
+        </div>
+        
+        <div class="controls-box" style="text-align:left; color:#fff; border-color:var(--zalando-orange);">
+            <p>📋 1. FEW-SHOT: Dai esempi, non solo ordini.</p>
+            <p>🧠 2. CHAIN OF THOUGHT: Ragiona step-by-step.</p>
+            <p>🛡️ 3. DELIMITERS: Proteggi i dati e cita le Celle (A1).</p>
+            <p>🏀 4. SLAM DUNK: Precisione assoluta con i Formati.</p>
+        </div>
+        
+        <button class="arcade-btn" onclick="location.reload()">GIOCA ANCORA</button>
     </div>
 
 </div>
@@ -250,14 +257,14 @@
 <script>
 /**
  * =============================================================================
- * ZALLY'S HOOPS: OPS ARCADE ENGINE (ULTIMATE EDITION)
- * -----------------------------------------------------------------------------
- * Un motore di gioco completo scritto in JavaScript (ES6).
- * Nessuna libreria esterna. Fisica vettoriale, Audio sintesi, Gestione Asset.
+ * ZALLY'S HOOPS: THE ULTIMATE ENGINE (v6.0)
+ * =============================================================================
+ * Motore di gioco scritto in Vanilla JS (ES6).
+ * Moduli: Physics, AudioSynth, ParticleSystem, GameStateMachine.
  * =============================================================================
  */
 
-/* --- 1. CONFIGURAZIONE & COSTANTI DI GIOCO --- */
+/* --- 1. CONFIGURAZIONE GLOBALE --- */
 const CONFIG = {
     gravity: 0.5,
     groundY: 650,
@@ -280,37 +287,50 @@ const CONFIG = {
             req: 1, 
             dist: 400,
             wind: 0,
-            desc: "IL METODO DELLO SPECCHIO. Gemini impara dagli esempi.",
-            code: "PROMPT:\n'Agisci come un esperto Ops. Rispondi alle email seguendo questi esempi:'\n\nInput: [Mail Fornitore] -> Output: [Tono Fermo]\nInput: [Mail Interna] -> Output: [Tono Collaborativo]\n\nOra rispondi a questa: [Nuova Mail]"
+            type: "NORMAL",
+            desc: "IL METODO DELLO SPECCHIO. Gemini impara dagli esempi. Non essere generico.",
+            code: "PROMPT:\n'Rispondi come un Senior Ops. Usa questi esempi:'\n\nInput: [Mail Fornitore] -> Output: [Tono Fermo]\nInput: [Mail Interna] -> Output: [Tono Collaborativo]\n\nOra rispondi a questa: [Nuova Mail]"
         },
         {
             title: "LVL 2: CHAIN OF THOUGHT",
             req: 1,
             dist: 550,
             wind: 0,
-            desc: "CALCOLA LA TRAIETTORIA. Usa 'Think Step-by-Step' per la logica.",
-            code: "PROMPT:\n'Analizza le discrepanze in fattura.'\n\nTHINK STEP-BY-STEP:\n1. Estrai il totale della PO.\n2. Estrai il totale della Fattura.\n3. Calcola la differenza.\n4. Se > 10€, scrivi una mail di reclamo."
+            type: "NORMAL",
+            desc: "LOGICA COMPLESSA? CALCOLA LA TRAIETTORIA. Usa 'Think Step-by-Step'.",
+            code: "PROMPT:\n'Analizza le discrepanze in fattura.'\n\nTHINK STEP-BY-STEP:\n1. Estrai il totale della PO.\n2. Estrai il totale della Fattura.\n3. Calcola la differenza.\n4. Se > 10€, scrivi bozza reclamo."
         },
         {
-            title: "LVL 3: DELIMITERS",
+            title: "LVL 3: DELIMITERS & REF",
             req: 2,
             dist: 500,
             wind: 1.5, // Vento forte
-            desc: "PROTEGGITI DAL VENTO (DATI SPORCHI). Usa ###.",
-            code: "PROMPT:\n'Estrai i codici SKU solo dal testo contenuto tra ###'\n\n###\n[Email lunga e confusa del fornitore]\n###"
+            type: "NORMAL",
+            desc: "PRECISIONE CHIRURGICA. In Google Sheets/Docs, cita CELLE e PARAGRAFI per evitare errori.",
+            code: "PROMPT:\n'Analizza i dati nel Foglio1!A1:B20. Usa SOLO il contesto tra ###'\n###\n[Policy Resi]\n###\n'Calcola il tasso di reso riferendoti alla Cella B5.'"
         },
         {
             title: "LVL 4: KEYWORDS",
-            req: 3,
+            req: 2,
             dist: 650,
             wind: 0.5,
+            type: "NORMAL",
             desc: "PARLA IL LINGUAGGIO DI SISTEMA. Chiedi formati espliciti.",
-            code: "PROMPT:\n'Analizza i dati di vendita.'\n\nOUTPUT FORMATS:\n1. Genera una [TABLE] riassuntiva.\n2. Crea un [PYTHON SCRIPT] per il grafico.\n3. Scrivi un [JSON] per il database."
+            code: "PROMPT:\n'Analizza il feedback.'\nOUTPUT FORMAT:\n1. Genera una [TABLE] riassuntiva.\n2. Crea un [PYTHON SCRIPT] per il grafico.\n3. Formatta in [JSON] per l'export."
+        },
+        {
+            title: "LVL 5: THE SLAM DUNK",
+            req: 1,
+            dist: 300,
+            wind: 0,
+            type: "DUNK", // Modalità Speciale
+            desc: "IL COLPO FINALE. Hai studiato la teoria. Ora vai a colpo sicuro. Premi [INVIO] per schiacciare.",
+            code: "SYSTEM STATUS: READY\n> CONFIDENCE: 100%\n> HALLUCINATIONS: 0%\n> EXECUTE: SLAM_DUNK_SEQUENCE()"
         }
     ]
 };
 
-/* --- 2. MATH & PHYSICS LIBRARY --- */
+/* --- 2. LIBRERIA MATEMATICA VETTORIALE --- */
 class Vector {
     constructor(x, y) { this.x = x; this.y = y; }
     add(v) { this.x += v.x; this.y += v.y; return this; }
@@ -330,7 +350,7 @@ const Utils = {
     randInt: (min, max) => Math.floor(Math.random() * (max - min + 1) + min)
 };
 
-/* --- 3. AUDIO ENGINE (SYNTHESIZER 8-BIT) --- */
+/* --- 3. MOTORE AUDIO (SINTETIZZATORE PROCEDURALE) --- */
 const AudioSys = {
     ctx: null,
     master: null,
@@ -339,22 +359,25 @@ const AudioSys = {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         this.ctx = new AudioContext();
         this.master = this.ctx.createGain();
-        this.master.gain.value = 0.3; // Master Volume
+        this.master.gain.value = 0.25; // Volume Master
         this.master.connect(this.ctx.destination);
     },
 
-    playTone(type, freq, startVol, decay) {
+    playTone(type, freq, startVol, dur, slide=0) {
         if(!this.ctx) return;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         osc.type = type;
         osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        if(slide !== 0) osc.frequency.linearRampToValueAtTime(freq + slide, this.ctx.currentTime + dur);
+        
         gain.gain.setValueAtTime(startVol, this.ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + decay);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + dur);
+
         osc.connect(gain);
         gain.connect(this.master);
         osc.start();
-        osc.stop(this.ctx.currentTime + decay);
+        osc.stop(this.ctx.currentTime + dur);
     },
 
     playNoise(duration) {
@@ -367,133 +390,160 @@ const AudioSys = {
         const noise = this.ctx.createBufferSource();
         noise.buffer = buffer;
         const gain = this.ctx.createGain();
-        gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+        gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
         gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + duration);
         noise.connect(gain);
         gain.connect(this.master);
         noise.start();
     },
 
-    // SFX Methods
+    // EFFETTI SONORI
     sfxMove() { this.playTone('triangle', 300, 0.05, 0.1); },
     sfxCharge(p) { this.playTone('sawtooth', 200 + p*2, 0.05, 0.1); },
-    sfxJump() { // Slide pitch up for jump
-        if(!this.ctx) return;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.frequency.setValueAtTime(150, this.ctx.currentTime);
-        osc.frequency.linearRampToValueAtTime(300, this.ctx.currentTime + 0.2);
-        gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.2);
-        osc.connect(gain); gain.connect(this.master);
-        osc.start(); osc.stop(this.ctx.currentTime + 0.2);
-    },
-    sfxShoot() { 
-        this.playTone('square', 200, 0.2, 0.3); // Shoot sound
-        this.playNoise(0.1); // Small puff noise
-    },
+    sfxJump() { this.playTone('square', 150, 0.2, 0.3, 200); }, // Slide up
+    sfxShoot() { this.playTone('square', 200, 0.2, 0.3, -50); }, // Slide down
     sfxBounce() { this.playTone('square', 100, 0.2, 0.1); },
     sfxSwish() { 
         this.playTone('sine', 800, 0.1, 0.3);
         this.playTone('sine', 1200, 0.1, 0.3);
-        this.playNoise(0.5); // Cheer
+        this.playNoise(0.5); // Applausi
     },
-    sfxMiss() { this.playTone('sawtooth', 100, 0.3, 0.5); }
+    sfxDunk() { // Suono potente per la schiacciata
+        this.playTone('square', 100, 0.5, 0.5, -50);
+        this.playTone('sawtooth', 50, 0.5, 0.8);
+        this.playNoise(0.8);
+    },
+    sfxMiss() { this.playTone('sawtooth', 100, 0.3, 0.5, -20); }
 };
 
-/* --- 4. ASSET MANAGER --- */
+/* --- 4. GESTIONE ASSET (IMMAGINI) --- */
 const Assets = {
     zally: new Image(),
     loaded: false,
     init() {
-        this.zally.src = 'zally_basket.png'; // L'immagine richiesta
-        this.zally.onload = () => { this.loaded = true; console.log("Zally Loaded"); };
-        this.zally.onerror = () => { this.loaded = false; console.log("Zally Not Found - Using Pixel Art"); };
+        this.zally.src = 'zally_basket.png';
+        this.zally.onload = () => { this.loaded = true; };
+        this.zally.onerror = () => { this.loaded = false; };
     }
 };
 
-/* --- 5. GAME ENTITIES --- */
+/* --- 5. ENTITÀ DI GIOCO --- */
 
 class Player {
     constructor() {
         this.pos = new Vector(100, CONFIG.groundY);
         this.vel = new Vector(0, 0);
-        this.isJumping = false;
         this.width = 80;
         this.height = 100;
+        this.state = 'IDLE'; // IDLE, JUMP, DUNK_RUN, DUNK_JUMP
+        this.frame = 0;
     }
 
+    // Salto standard per il tiro
     jump() {
-        if (!this.isJumping) {
-            this.vel.y = -12; // Impulso salto
-            this.isJumping = true;
+        if (this.state === 'IDLE') {
+            this.vel.y = -12; 
+            this.state = 'JUMP';
             AudioSys.sfxJump();
         }
     }
 
     update() {
-        // Fisica del salto
-        if (this.isJumping || this.pos.y < CONFIG.groundY) {
+        this.frame++;
+
+        // Fisica della schiacciata (Cinematica)
+        if (this.state === 'DUNK_RUN') {
+            this.pos.x += 8; // Velocità corsa
+            
+            // Punto di stacco
+            if (this.pos.x > CONFIG.physics.hoopX - 160) {
+                this.state = 'DUNK_JUMP';
+                this.vel.y = -18; // Super Salto
+                this.vel.x = 4;   // Inerzia orizzontale
+                AudioSys.sfxJump();
+            }
+        } 
+        else if (this.state === 'DUNK_JUMP') {
+            this.vel.y += CONFIG.gravity;
+            this.pos.add(this.vel);
+
+            // Rilevamento Schiacciata
+            if (this.pos.y < CONFIG.physics.hoopY && this.pos.x >= CONFIG.physics.hoopX - 50) {
+                return 'SLAM_HIT';
+            }
+            // Atterraggio di emergenza
+            if (this.pos.y > CONFIG.groundY) {
+                this.pos.y = CONFIG.groundY;
+                this.state = 'IDLE';
+            }
+        }
+        // Fisica Salto Standard
+        else if (this.state === 'JUMP') {
             this.vel.y += CONFIG.gravity;
             this.pos.y += this.vel.y;
 
             if (this.pos.y >= CONFIG.groundY) {
                 this.pos.y = CONFIG.groundY;
                 this.vel.y = 0;
-                this.isJumping = false;
+                this.state = 'IDLE';
             }
         }
+        return null;
     }
 
-    draw(ctx) {
+    draw(ctx, holdBall) {
         const x = this.pos.x;
-        const y = this.pos.y - this.height; // Pivot point bottom
+        const y = this.pos.y - this.height;
 
-        // Disegna ombra quando salta
-        if (this.isJumping) {
+        ctx.save();
+        
+        // Ombra
+        if (this.pos.y < CONFIG.groundY) {
             ctx.fillStyle = 'rgba(0,0,0,0.3)';
-            const shadowScale = 1 - (Math.abs(CONFIG.groundY - this.pos.y) / 200);
+            const s = 1 - (CONFIG.groundY - this.pos.y)/300;
             ctx.beginPath();
-            ctx.ellipse(x + 40, CONFIG.groundY + 10, 30 * shadowScale, 10 * shadowScale, 0, 0, Math.PI*2);
+            ctx.ellipse(x+40, CONFIG.groundY+10, 30*s, 10*s, 0, 0, Math.PI*2);
             ctx.fill();
         }
 
         if (Assets.loaded) {
-            // Usa immagine PNG
-            ctx.save();
-            // Flip image horizontally se necessario (qui no, guarda a dx)
-            ctx.drawImage(Assets.zally, x, y, this.width, this.height);
-            ctx.restore();
-        } else {
-            // FALLBACK PIXEL ART PROCEDURALE
-            ctx.save();
-            ctx.translate(x + 40, y + 50); // Center pivot
+            ctx.translate(x+40, y+50);
             
-            // Corpo (Arancione Zalando)
+            // Rotazione durante la schiacciata
+            if (this.state === 'DUNK_JUMP') ctx.rotate(0.3); // Inclinazione in avanti
+            
+            ctx.drawImage(Assets.zally, -40, -50, this.width, this.height);
+        } else {
+            // FALLBACK PIXEL ART
+            ctx.translate(x+40, y+50);
+            if (this.state === 'DUNK_JUMP') ctx.rotate(0.3);
+
+            // Gambe animate
+            ctx.fillStyle = '#111';
+            let runOffset = (this.state === 'DUNK_RUN') ? Math.sin(this.frame * 0.5) * 15 : 0;
+            ctx.fillRect(-20 + runOffset, 20, 15, 40);
+            ctx.fillRect(5 - runOffset, 20, 15, 40);
+
+            // Corpo
             ctx.fillStyle = CONFIG.colors.orange;
             ctx.fillRect(-20, -30, 40, 50);
-            
+
             // Testa
             ctx.fillStyle = '#ffccaa';
             ctx.fillRect(-15, -60, 30, 30);
-            
+
             // Cappellino
             ctx.fillStyle = '#111';
             ctx.fillRect(-15, -65, 30, 10);
-            ctx.fillRect(5, -65, 20, 5); // Visiera
+            ctx.fillRect(5, -65, 20, 5);
 
-            // Gambe (se salta si piegano leggermente)
-            ctx.fillStyle = '#111';
-            if (this.isJumping) {
-                ctx.fillRect(-20, 20, 15, 20); // Gambe piegate
-                ctx.fillRect(5, 20, 15, 20);
-            } else {
-                ctx.fillRect(-20, 20, 15, 40); // Gambe dritte
-                ctx.fillRect(5, 20, 15, 40);
+            // Braccia (che tengono la palla)
+            if (holdBall) {
+                ctx.fillStyle = CONFIG.colors.orange;
+                ctx.fillRect(10, -30, 30, 10); // Braccia in alto
             }
-            
-            ctx.restore();
         }
+        ctx.restore();
     }
 }
 
@@ -505,51 +555,61 @@ class Hoop {
         const x = this.pos.x;
         const y = this.pos.y;
         
-        // Pole
+        // Palo
         ctx.fillStyle = '#444';
         ctx.fillRect(x+60, y, 15, CONFIG.groundY - y);
         
-        // Backboard
+        // Tabellone
         ctx.fillStyle = '#fff';
         ctx.fillRect(x+50, y-90, 5, 100);
         ctx.fillStyle = CONFIG.colors.orange;
-        ctx.fillRect(x+52, y-70, 3, 40); // Target square
+        ctx.fillRect(x+52, y-70, 3, 40);
 
-        // Rim
+        // Ferro
         ctx.fillStyle = CONFIG.colors.orange;
         ctx.fillRect(x, y, 50, 6);
 
-        // Net (Linee procedurali)
+        // Rete (Linee procedurali)
         ctx.strokeStyle = '#ccc';
         ctx.lineWidth = 2;
         ctx.beginPath();
         for(let i=0; i<=50; i+=10) {
             ctx.moveTo(x+i, y+6);
-            ctx.lineTo(x+i+5, y+40); // Zig
-            ctx.lineTo(x+i-5, y+6); // Zag
+            ctx.lineTo(x+i+5, y+40);
+            ctx.lineTo(x+i-5, y+6);
         }
         ctx.stroke();
     }
 }
 
-/* --- 6. VISUAL EFFECTS (PARTICLES) --- */
+/* --- 6. SISTEMA PARTICELLE --- */
 class Particle {
     constructor(x, y, type) {
         this.pos = new Vector(x, y);
         this.vel = new Vector(Utils.rand(-5, 5), Utils.rand(-5, 5));
         this.life = 1.0;
         this.type = type;
-        this.color = Math.random()>0.5 ? CONFIG.colors.orange : '#fff';
+        
+        if (type === 'confetti') {
+            this.color = Math.random() > 0.5 ? CONFIG.colors.orange : '#fff';
+            this.size = Utils.rand(3, 6);
+        } else if (type === 'spark') {
+            this.color = '#ffff00';
+            this.vel = new Vector(Utils.rand(-10, 10), Utils.rand(-10, 10)); // Veloce
+            this.size = 2;
+            this.decay = 0.05;
+        }
+        this.decay = this.decay || 0.02;
     }
     update() {
         this.pos.add(this.vel);
-        this.life -= 0.03;
-        this.vel.y += 0.2; // Gravity
+        this.life -= this.decay;
+        this.vel.y += 0.2; // Gravità
     }
     draw(ctx) {
         ctx.globalAlpha = this.life;
         ctx.fillStyle = this.color;
-        ctx.fillRect(this.pos.x, this.pos.y, 6, 6);
+        ctx.fillRect(this.pos.x, this.pos.y, this.size, this.size);
         ctx.globalAlpha = 1.0;
     }
 }
@@ -567,24 +627,24 @@ class Floater {
     }
 }
 
-/* --- 7. MAIN ENGINE CONTROLLER --- */
+/* --- 7. GAME ENGINE CONTROLLER --- */
 const Game = {
     canvas: null,
     ctx: null,
     
-    // State
+    // Stati di Gioco
     state: 'MENU',
     levelIdx: 0,
     score: 0,
     shotsMade: 0,
     
-    // Entities
+    // Entità
     player: null,
-    hoop: null,
     ball: { pos: new Vector(0,0), vel: new Vector(0,0), active: false, r: 14 },
+    hoop: null,
     
     // Input
-    keys: { left: false, right: false, space: false },
+    keys: { left: false, right: false, space: false, enter: false },
     angle: 45,
     power: 0,
     wind: 0,
@@ -592,28 +652,27 @@ const Game = {
     // FX
     particles: [],
     floaters: [],
-    crowd: [],
     shake: 0,
 
     init() {
         this.canvas = document.getElementById('gameCanvas');
         this.ctx = this.canvas.getContext('2d');
         
-        // Init Systems
+        // Inizializza Sottosistemi
         AudioSys.init();
         Assets.init();
         
         this.player = new Player();
         this.hoop = new Hoop();
-        
-        // Generate Crowd
-        for(let i=0; i<30; i++) this.crowd.push(Math.random());
 
+        // Nascondi menu
+        document.getElementById('screen-start').style.display = 'none';
+        
         // Event Listeners
         window.addEventListener('keydown', e => this.onKey(e, true));
         window.addEventListener('keyup', e => this.onKey(e, false));
-
-        document.getElementById('screen-start').style.display = 'none';
+        
+        // Avvia primo livello
         this.startLevel(0);
         this.loop();
     },
@@ -622,15 +681,20 @@ const Game = {
         if(e.code === 'ArrowLeft') this.keys.left = isDown;
         if(e.code === 'ArrowRight') this.keys.right = isDown;
         
+        // Tasto ENTER per Schiacciata (Solo Livello 5)
+        if(e.code === 'Enter' && isDown) {
+            if (this.state === 'DUNK_READY') {
+                this.startDunkSequence();
+            }
+        }
+
+        // Tasto SPACE per Tiro Normale
         if(e.code === 'Space') {
-            // LOGICA DI CARICA E RILASCIO (CON SALTO)
             if(this.state === 'PLAY') {
-                if(isDown && !this.keys.space) {
-                    this.power = 0; // Inizia carica
-                }
-                if(!isDown && this.keys.space && this.power > 0) {
-                    this.shoot(); // Rilascia e tira
-                }
+                // Inizia caricamento
+                if(isDown && !this.keys.space) this.power = 0;
+                // Rilascio -> Tiro
+                if(!isDown && this.keys.space && this.power > 0) this.shoot();
             }
             this.keys.space = isDown;
         }
@@ -639,126 +703,144 @@ const Game = {
     startLevel(idx) {
         this.levelIdx = idx;
         this.shotsMade = 0;
-        this.state = 'PLAY';
         document.getElementById('screen-level').style.display = 'none';
-        
         this.updateHUD();
         this.resetShot();
     },
 
     resetShot() {
-        this.state = 'PLAY';
+        const lvl = CONFIG.levels[this.levelIdx];
+        
+        // Configurazione Livello Schiacciata
+        if (lvl.type === 'DUNK') {
+            this.state = 'DUNK_READY';
+            this.player.pos.x = 100;
+            this.player.state = 'IDLE';
+            // Cambia testo bottone per la fine
+            document.getElementById('next-btn').innerText = "FINISH"; 
+        } else {
+            // Configurazione Livello Normale
+            this.state = 'PLAY';
+            this.player.pos.x = CONFIG.physics.hoopX - lvl.dist;
+            this.player.state = 'IDLE';
+        }
+        
+        // Reset Variabili
         this.ball.active = false;
         this.power = 0;
         this.angle = 45;
-        this.player.isJumping = false;
+        this.wind = lvl.wind ? Utils.rand(-lvl.wind, lvl.wind) : 0;
         this.player.pos.y = CONFIG.groundY;
         this.player.vel.y = 0;
-
-        const lvl = CONFIG.levels[this.levelIdx];
-        this.player.pos.x = this.hoop.pos.x - lvl.dist;
-        
-        // Palla in mano
-        this.ball.pos = new Vector(this.player.pos.x + 60, this.player.pos.y - 40);
-        this.ball.vel = new Vector(0,0);
-
-        this.wind = lvl.wind ? (Math.random() * lvl.wind - (lvl.wind/2)) : 0;
     },
 
+    // --- LOGICA TIRO STANDARD ---
     shoot() {
         this.state = 'FLIGHT';
         
-        // 1. SALTO DI ZALLY
+        // Player salta
         this.player.jump();
         
-        // 2. LANCIO PALLA (Sincronizzato col salto)
+        // Palla parte
         this.ball.active = true;
         AudioSys.sfxShoot();
-
-        const rad = (this.angle * Math.PI) / 180;
-        const speed = (this.power / 100) * 20 + 12; // Calibrazione velocità
-
-        this.ball.vel.x = Math.cos(rad) * speed;
-        this.ball.vel.y = -Math.sin(rad) * speed;
         
-        // Aggiunge un piccolo "lift" verticale extra dato dal salto
-        this.ball.vel.y -= 2; 
+        const rad = (this.angle * Math.PI) / 180;
+        const speed = (this.power / 100) * 20 + 12;
+        
+        // Posizione di partenza palla (sopra la testa)
+        this.ball.pos = new Vector(this.player.pos.x + 60, this.player.pos.y - 60);
+        this.ball.vel = new Vector(Math.cos(rad) * speed, -Math.sin(rad) * speed);
+        
+        // Aggiungi un po' di "lift" dal salto
+        this.ball.vel.y -= 2;
+    },
 
-        // Spawn smoke
-        for(let i=0; i<10; i++) this.particles.push(new Particle(this.player.pos.x+60, this.player.pos.y-40, 'smoke'));
+    // --- LOGICA SCHIACCIATA (CINEMATIC) ---
+    startDunkSequence() {
+        this.state = 'DUNK_ANIMATION';
+        this.player.state = 'DUNK_RUN';
+        AudioSys.sfxMove(); // Suono corsa
     },
 
     update() {
-        // --- PLAYER & INPUT ---
-        this.player.update();
-
-        if (this.state === 'PLAY') {
-            // Aiming
-            if (this.keys.left && this.angle < 85) { this.angle += 1; AudioSys.sfxMove(); }
-            if (this.keys.right && this.angle > 10) { this.angle -= 1; AudioSys.sfxMove(); }
+        // 1. UPDATE PLAYER
+        const dunkResult = this.player.update();
+        
+        // Se siamo in schiacciata, la palla segue la mano
+        if (this.state === 'DUNK_ANIMATION') {
+            this.ball.pos.x = this.player.pos.x + 60;
+            this.ball.pos.y = this.player.pos.y - 70;
             
-            // Charging Power
-            if (this.keys.space) {
-                this.power += 1.5;
-                if(this.power > 100) this.power = 100;
-                if(Math.floor(this.power)%10 === 0) AudioSys.sfxCharge(this.power);
+            if (dunkResult === 'SLAM_HIT') {
+                this.successDunk();
             }
         }
 
-        // --- BALL PHYSICS ---
+        // 2. INPUT TIRO NORMALE
+        if (this.state === 'PLAY') {
+            if (this.keys.left && this.angle < 85) { this.angle+=1; AudioSys.sfxMove(); }
+            if (this.keys.right && this.angle > 10) { this.angle-=1; AudioSys.sfxMove(); }
+            if (this.keys.space) {
+                this.power += 1.5;
+                if (this.power > 100) this.power = 100;
+                if (Math.floor(this.power)%10 === 0) AudioSys.sfxCharge(this.power);
+            }
+        }
+
+        // 3. FISICA PALLA (Solo se lanciata)
         if (this.state === 'FLIGHT' && this.ball.active) {
             this.ball.vel.y += CONFIG.gravity;
             this.ball.vel.x *= CONFIG.physics.drag;
             this.ball.pos.add(this.ball.vel);
             this.ball.pos.x += this.wind;
 
-            // Pavimento
+            // Rilevamento Canestro
+            const dx = this.ball.pos.x - (CONFIG.physics.hoopX + 25);
+            const dy = this.ball.pos.y - CONFIG.physics.hoopY;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+
+            if (dist < 40 && this.ball.vel.y > 0) this.success();
+            
+            // Pavimento / Miss
             if (this.ball.pos.y > CONFIG.groundY) {
                 this.ball.pos.y = CONFIG.groundY;
-                this.ball.vel.y *= CONFIG.physics.bounce;
-                this.ball.vel.x *= 0.8;
+                this.ball.vel.y *= -0.7;
                 AudioSys.sfxBounce();
                 if(Math.abs(this.ball.vel.y) < 1) this.fail("CORTO");
             }
-
-            // Fuori campo
             if (this.ball.pos.x > 1024) this.fail("AIRBALL");
-
-            // COLLISIONI HOOP
-            const bx = this.ball.pos.x; const by = this.ball.pos.y;
-            const hx = this.hoop.pos.x; const hy = this.hoop.pos.y;
-
-            // Tabellone (Rimbalzo)
-            if (bx > hx+50 && bx < hx+60 && by > hy-90 && by < hy) {
-                this.ball.vel.x *= -0.6;
-                this.shake = 5;
-                AudioSys.sfxBounce();
-            }
-
-            // Ferro (Punto o Rimbalzo)
-            const dx = bx - (hx + 25);
-            const dy = by - hy;
-            const dist = Math.sqrt(dx*dx + dy*dy);
-
-            // SUCCESS LOGIC (Hitbox permissiva per Arcade feel)
-            if (dist < 40 && this.ball.vel.y > 0) {
-                this.success();
-            } else if (dist < 20) {
-                // Colpito il ferro
-                this.ball.vel.x *= -0.8;
-                this.ball.vel.y *= -0.8;
-                AudioSys.sfxBounce();
-            }
         }
 
-        // --- FX UPDATES ---
-        this.particles.forEach((p,i) => {
-            p.update(); if(p.life <= 0) this.particles.splice(i,1);
-        });
-        this.floaters.forEach((f,i) => {
-            f.update(); if(f.life <= 0) this.floaters.splice(i,1);
-        });
-        if(this.shake > 0) { this.shake *= 0.9; if(this.shake<0.5) this.shake=0; }
+        // 4. FX UPDATE
+        this.particles.forEach((p,i) => { p.update(); if(p.life<=0) this.particles.splice(i,1); });
+        this.floaters.forEach((f,i) => { f.update(); if(f.life<=0) this.floaters.splice(i,1); });
+        
+        // Screen Shake Decay
+        if(this.shake > 0) { 
+            this.shake *= 0.9; 
+            if(this.shake < 0.5) this.shake = 0; 
+        }
+    },
+
+    // --- EVENTI RISULTATO ---
+    
+    successDunk() {
+        this.state = 'ANIMATE';
+        this.score += 1000;
+        this.shotsMade++;
+        this.shake = 20; // Scossa forte!
+        AudioSys.sfxDunk();
+        
+        // Palla schiacciata giù
+        this.ball.active = true;
+        this.ball.vel = new Vector(0, 15);
+        
+        // Esplosione scintille
+        for(let i=0; i<50; i++) this.particles.push(new Particle(this.ball.pos.x, this.ball.pos.y, 'spark'));
+        this.floaters.push(new Floater("SLAM DUNK!!", this.ball.pos.x, this.ball.pos.y-100, CONFIG.colors.orange));
+        
+        setTimeout(() => this.showLevelUp(), 2000);
     },
 
     success() {
@@ -766,21 +848,16 @@ const Game = {
         this.state = 'ANIMATE';
         this.score += 500;
         this.shotsMade++;
-        this.shake = 10;
         AudioSys.sfxSwish();
-
-        // Esplosione coriandoli
-        for(let i=0; i<40; i++) this.particles.push(new Particle(this.hoop.pos.x+25, this.hoop.pos.y, 'confetti'));
-        this.floaters.push(new Floater("SWISH!", this.hoop.pos.x, this.hoop.pos.y-50, '#39ff14'));
-
+        this.shake = 5;
+        this.floaters.push(new Floater("SWISH!", CONFIG.physics.hoopX, CONFIG.physics.hoopY-50, '#39ff14'));
+        
+        for(let i=0; i<20; i++) this.particles.push(new Particle(CONFIG.physics.hoopX+25, CONFIG.physics.hoopY, 'confetti'));
+        
         this.updateHUD();
-
         setTimeout(() => {
-            if(this.shotsMade >= CONFIG.levels[this.levelIdx].req) {
-                this.showLevelUp();
-            } else {
-                this.resetShot();
-            }
+            if(this.shotsMade >= CONFIG.levels[this.levelIdx].req) this.showLevelUp();
+            else this.resetShot();
         }, 1500);
     },
 
@@ -788,12 +865,22 @@ const Game = {
         if(this.state === 'ANIMATE') return;
         this.state = 'ANIMATE';
         AudioSys.sfxMiss();
-        this.floaters.push(new Floater(txt, this.ball.pos.x, this.ball.pos.y-50, '#ff0000'));
+        this.floaters.push(new Floater(txt, this.ball.pos.x, this.ball.pos.y-50, '#f00'));
         setTimeout(() => this.resetShot(), 1000);
     },
 
+    nextLevel() {
+        if (this.levelIdx + 1 < CONFIG.levels.length) {
+            this.startLevel(this.levelIdx + 1);
+        } else {
+            // Vittoria Finale
+            document.getElementById('screen-level').style.display = 'none';
+            document.getElementById('screen-victory').style.display = 'flex';
+        }
+    },
+
     updateHUD() {
-        document.getElementById('scoreEl').innerText = "SCORE: " + this.score.toString().padStart(4, '0');
+        document.getElementById('scoreEl').innerText = "PUNTI: " + this.score.toString().padStart(4,'0');
         document.getElementById('levelEl').innerText = CONFIG.levels[this.levelIdx].title;
     },
 
@@ -804,111 +891,80 @@ const Game = {
         document.getElementById('screen-level').style.display = 'flex';
     },
 
-    nextLevel() {
-        if(this.levelIdx + 1 < CONFIG.levels.length) {
-            this.startLevel(this.levelIdx + 1);
-        } else {
-            alert("COMPLIMENTI! HAI MASTERATO IL PROMPTING!");
-            location.reload();
-        }
-    },
-
-    restart() {
-        this.score = 0;
-        this.startLevel(0);
-        document.getElementById('screen-gameover').style.display = 'none';
-    },
-
-    /* --- DRAWING --- */
+    // --- RENDERING ---
     draw() {
         this.ctx.save();
         
-        // Screen Shake
+        // Shake Camera
         if(this.shake > 0) {
             this.ctx.translate(Math.random()*this.shake - this.shake/2, Math.random()*this.shake - this.shake/2);
         }
+        
+        // 1. CIELO
+        let g = this.ctx.createLinearGradient(0,0,0,768);
+        g.addColorStop(0, CONFIG.colors.skyTop); g.addColorStop(1, CONFIG.colors.skyBot);
+        this.ctx.fillStyle = g; this.ctx.fillRect(0,0,1024,768);
 
-        // 1. SKY & CITY
-        let grad = this.ctx.createLinearGradient(0,0,0,768);
-        grad.addColorStop(0, CONFIG.colors.skyTop);
-        grad.addColorStop(1, CONFIG.colors.skyBot);
-        this.ctx.fillStyle = grad;
-        this.ctx.fillRect(0,0,1024,768);
-
-        // Buildings (Procedurale)
-        this.ctx.fillStyle = '#0a0a1a';
-        for(let i=0; i<20; i++) {
+        // 2. GRATTACIELI (Procedurale)
+        this.ctx.fillStyle = '#0f0f1a';
+        for(let i=0; i<15; i++) {
             let h = 100 + Math.sin(i*123)*80;
-            this.ctx.fillRect(i*60, CONFIG.groundY - h, 50, h);
-            // Windows
-            this.ctx.fillStyle = Math.random()>0.95 ? CONFIG.colors.orange : '#111';
-            this.ctx.fillRect(i*60+10, CONFIG.groundY - h + 10, 5, 5);
-            this.ctx.fillStyle = '#0a0a1a';
+            this.ctx.fillRect(i*70, CONFIG.groundY-h, 60, h);
+            // Finestre
+            this.ctx.fillStyle = Math.random()>0.95 ? CONFIG.colors.orange : '#1a1a2e';
+            this.ctx.fillRect(i*70+10, CONFIG.groundY-h+10, 5, 5);
+            this.ctx.fillStyle = '#0f0f1a';
         }
 
-        // 2. CROWD (Animated)
-        this.ctx.fillStyle = '#333';
-        this.ctx.fillRect(0, 550, 1024, 100);
+        // 3. FOLLA
+        this.ctx.fillStyle = '#333'; this.ctx.fillRect(0, 550, 1024, 100);
         for(let i=0; i<40; i++) {
-            let jump = (this.state === 'ANIMATE' && this.score > 0) ? Math.abs(Math.sin(Date.now()/100 + i))*20 : 0;
-            let cx = i*30;
-            let cy = 600 - (this.crowd[i%30]*20) - jump;
-            this.ctx.fillStyle = CONFIG.colors.crowd[i%CONFIG.colors.crowd.length];
-            this.ctx.fillRect(cx, cy, 15, 30);
-            // Eyes
-            this.ctx.fillStyle = '#fff';
-            this.ctx.fillRect(cx+2, cy+5, 2, 2);
-            this.ctx.fillRect(cx+8, cy+5, 2, 2);
+            let jp = (this.state==='ANIMATE') ? Math.sin(Date.now()/50 + i)*10 : 0;
+            this.ctx.fillStyle = CONFIG.colors.crowd[i%5];
+            this.ctx.fillRect(i*30, 600-jp, 15, 30);
         }
 
-        // 3. FLOOR
-        this.ctx.fillStyle = '#222';
-        this.ctx.fillRect(0, CONFIG.groundY, 1024, 118);
-        this.ctx.strokeStyle = CONFIG.colors.orange;
-        this.ctx.lineWidth = 4;
-        this.ctx.beginPath();
-        this.ctx.moveTo(0, CONFIG.groundY); this.ctx.lineTo(1024, CONFIG.groundY);
-        this.ctx.stroke();
+        // 4. PAVIMENTO
+        this.ctx.fillStyle = '#222'; this.ctx.fillRect(0, CONFIG.groundY, 1024, 118);
+        this.ctx.strokeStyle = CONFIG.colors.orange; this.ctx.lineWidth = 4;
+        this.ctx.beginPath(); this.ctx.moveTo(0,CONFIG.groundY); this.ctx.lineTo(1024,CONFIG.groundY); this.ctx.stroke();
 
-        // 4. ENTITIES
+        // 5. ENTITA'
         this.hoop.draw(this.ctx);
-        this.player.draw(this.ctx); // Zally
-
-        // Ball
-        if(this.ball.active) {
+        // Zally (mostra palla in mano solo se non attiva o in schiacciata)
+        this.player.draw(this.ctx, (this.state === 'DUNK_ANIMATION' || !this.ball.active));
+        
+        // Palla
+        if(this.ball.active || this.state === 'DUNK_ANIMATION') {
             this.ctx.fillStyle = CONFIG.colors.orange;
             this.ctx.beginPath(); 
-            this.ctx.arc(this.ball.pos.x, this.ball.pos.y, this.ball.r, 0, Math.PI*2); 
+            this.ctx.arc(this.ball.pos.x, this.ball.pos.y, 14, 0, Math.PI*2); 
             this.ctx.fill();
-            this.ctx.strokeStyle = '#000'; this.ctx.stroke();
+            this.ctx.strokeStyle = '#000'; this.ctx.lineWidth=2; this.ctx.stroke();
         }
 
-        // 5. FX
+        // 6. UI MIRA
+        if(this.state === 'PLAY' && CONFIG.levels[this.levelIdx].type !== 'DUNK') {
+            const ax = this.player.pos.x+40; const ay = this.player.pos.y-60;
+            const r = -(this.angle*Math.PI)/180;
+            // Linea
+            this.ctx.strokeStyle = '#fff'; this.ctx.lineWidth = 2; this.ctx.setLineDash([5,5]);
+            this.ctx.beginPath(); this.ctx.moveTo(ax,ay); this.ctx.lineTo(ax+Math.cos(r)*100, ay+Math.sin(r)*100); this.ctx.stroke(); this.ctx.setLineDash([]);
+            // Barra Potenza
+            this.ctx.fillStyle = '#fff'; this.ctx.fillRect(ax-30, ay-50, 60, 10);
+            this.ctx.fillStyle = this.power>90 ? '#f00' : CONFIG.colors.orange;
+            this.ctx.fillRect(ax-30, ay-50, (this.power/100)*60, 10);
+        }
+
+        // 7. ISTRUZIONI SCHIACCIATA
+        if(this.state === 'DUNK_READY') {
+            this.ctx.fillStyle = '#fff'; this.ctx.font = "20px 'Press Start 2P'";
+            this.ctx.fillText("PREMI [INVIO] PER SCHIACCIARE!", this.player.pos.x - 50, this.player.pos.y - 120);
+        }
+
+        // 8. PARTICELLE
         this.particles.forEach(p => p.draw(this.ctx));
         this.floaters.forEach(f => f.draw(this.ctx));
-
-        // 6. UI (AIM LINES)
-        if(this.state === 'PLAY') {
-            const px = this.player.pos.x + 40;
-            const py = this.player.pos.y - 60;
-            const rad = -(this.angle * Math.PI)/180;
-            
-            // Dotted Line
-            this.ctx.strokeStyle = '#fff';
-            this.ctx.setLineDash([5, 5]);
-            this.ctx.lineWidth = 2;
-            this.ctx.beginPath();
-            this.ctx.moveTo(px, py);
-            this.ctx.lineTo(px + Math.cos(rad)*100, py + Math.sin(rad)*100);
-            this.ctx.stroke();
-            this.ctx.setLineDash([]);
-
-            // Power Bar
-            this.ctx.fillStyle = '#fff';
-            this.ctx.fillRect(px-30, py-50, 60, 10);
-            this.ctx.fillStyle = this.power > 90 ? '#f00' : CONFIG.colors.orange;
-            this.ctx.fillRect(px-30, py-50, (this.power/100)*60, 10);
-        }
 
         this.ctx.restore();
     },
